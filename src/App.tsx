@@ -7,6 +7,9 @@ import Navigation from "./components/Navigation";
 import Dashboard from "./components/Dashboard";
 import TestInterface from "./components/TestInterface";
 import Results from "./components/Results";
+import Interviews from "./components/Interviews";
+import Progress from "./components/Progress";
+import Feedback from "./components/Feedback";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +25,9 @@ const App = () => (
             <Route path="/" element={<Dashboard />} />
             <Route path="/test" element={<TestInterface />} />
             <Route path="/results" element={<Results />} />
+            <Route path="/interviews" element={<Interviews />} />
+            <Route path="/progress" element={<Progress />} />
+            <Route path="/feedback" element={<Feedback />} />
           </Routes>
         </div>
       </BrowserRouter>
