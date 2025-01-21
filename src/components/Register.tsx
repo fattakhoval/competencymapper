@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { createClientComponentClient } from "@supabase/auth-helpers-react";
+import { createClient } from "@supabase/supabase-js";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useToast } from "./ui/use-toast";
 import { UserPlus } from "lucide-react";
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -12,7 +17,6 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const supabase = createClientComponentClient();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
