@@ -1,49 +1,16 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
+import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useToast } from "./ui/use-toast";
 import { UserPlus } from "lucide-react";
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-      },
-    });
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Ошибка регистрации",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Успешная регистрация",
-        description: "Проверьте вашу почту для подтверждения email",
-      });
-      navigate("/login");
-    }
-    setLoading(false);
+    console.log("Registration attempt with:", { email, password });
   };
 
   return (
@@ -86,13 +53,9 @@ const Register = () => {
           </div>
 
           <div>
-            <Button
-              type="submit"
-              className="w-full flex justify-center"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full flex justify-center">
               <UserPlus className="mr-2" />
-              {loading ? "Регистрация..." : "Зарегистрироваться"}
+              Зарегистрироваться
             </Button>
           </div>
         </form>

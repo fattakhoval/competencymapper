@@ -1,46 +1,16 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
+import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useToast } from "./ui/use-toast";
 import { LogIn } from "lucide-react";
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Ошибка входа",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Успешный вход",
-        description: "Добро пожаловать!",
-      });
-      navigate("/");
-    }
-    setLoading(false);
+    console.log("Login attempt with:", { email, password });
   };
 
   return (
@@ -82,13 +52,9 @@ const Login = () => {
           </div>
 
           <div>
-            <Button
-              type="submit"
-              className="w-full flex justify-center"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full flex justify-center">
               <LogIn className="mr-2" />
-              {loading ? "Вход..." : "Войти"}
+              Войти
             </Button>
           </div>
         </form>
