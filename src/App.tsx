@@ -10,6 +10,8 @@ import Results from "./components/Results";
 import Interviews from "./components/Interviews";
 import Progress from "./components/Progress";
 import Feedback from "./components/Feedback";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
             <Route path="/interviews" element={<Interviews />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </div>
       </BrowserRouter>
