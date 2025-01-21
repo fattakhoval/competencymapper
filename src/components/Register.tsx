@@ -3,15 +3,28 @@ import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { UserPlus } from "lucide-react";
-
+import axios from 'axios';
 const Register = () => {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Registration attempt with:", { email, password });
+    console.log({ email, password, name }); // Проверьте, что данные правильные
+    try {
+      const response = await axios.post('http://localhost:5000/api/users/register', {
+        email,
+        password,
+        name,
+        role: 'user',
+      });
+      console.log('Registered:', response.data);
+    } catch (error) {
+      console.error('Registration error:', error);
+    }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -23,6 +36,20 @@ const Register = () => {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleRegister}>
           <div className="rounded-md shadow-sm space-y-4">
+            <div>
+              <label htmlFor="name" className="sr-only">
+                Email
+              </label>
+              <Input
+                id="name"
+                type="name"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Имя"
+              />
+            </div>
+
             <div>
               <label htmlFor="email" className="sr-only">
                 Email
@@ -36,6 +63,7 @@ const Register = () => {
                 placeholder="Email"
               />
             </div>
+
             <div>
               <label htmlFor="password" className="sr-only">
                 Пароль

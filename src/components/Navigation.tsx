@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, BarChart2, ClipboardList, Home } from "lucide-react";
+import { Menu, X, BarChart2, ClipboardList, Home, User } from "lucide-react";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   const navItems = [
-    { path: "/", label: "Dashboard", icon: Home },
-    { path: "/test", label: "Take Test", icon: ClipboardList },
-    { path: "/results", label: "Results", icon: BarChart2 },
+    { path: "/", label: "Главная", icon: Home },
+    { path: "/test", label: "Тест", icon: ClipboardList },
+    { path: "/results", label: "Результаты", icon: BarChart2 },
+    { path: "/register", label: "Регистрация", icon: User },
   ];
 
   return (
