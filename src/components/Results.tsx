@@ -1,15 +1,24 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Download, RefreshCw } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { Download, RefreshCw, MessageSquare } from "lucide-react";
 
-const data = [
+const currentData = [
   { skill: "Time Management", score: 85 },
   { skill: "Team Collaboration", score: 92 },
   { skill: "Stress Management", score: 78 },
   { skill: "Communication", score: 88 },
   { skill: "Problem Solving", score: 90 },
+];
+
+const progressData = [
+  { month: "Jan", score: 75 },
+  { month: "Feb", score: 78 },
+  { month: "Mar", score: 82 },
+  { month: "Apr", score: 85 },
+  { month: "May", score: 88 },
+  { month: "Jun", score: 92 },
 ];
 
 const Results = () => {
@@ -27,17 +36,34 @@ const Results = () => {
 
         <Card className="p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Competency Scores
+            Current Competency Scores
           </h2>
           <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={currentData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="skill" />
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="score" fill="#1E40AF" />
               </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card className="p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Progress Over Time
+          </h2>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={progressData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="score" stroke="#1E40AF" />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </Card>
@@ -89,6 +115,12 @@ const Results = () => {
             <Button variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" />
               Take Another Assessment
+            </Button>
+          </Link>
+          <Link to="/feedback">
+            <Button variant="outline">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Provide Feedback
             </Button>
           </Link>
         </div>

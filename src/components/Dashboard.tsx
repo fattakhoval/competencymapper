@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Award, Brain, Target } from "lucide-react";
+import { ArrowRight, Award, Brain, Target, History, TrendingUp, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
@@ -22,6 +22,27 @@ const Dashboard = () => {
       value: "3",
       icon: Target,
       color: "text-orange-600",
+    },
+  ];
+
+  const hrMetrics = [
+    {
+      title: "Interview History",
+      description: "View and manage interview records",
+      icon: History,
+      link: "/interviews",
+    },
+    {
+      title: "Progress Tracking",
+      description: "Monitor competency development",
+      icon: TrendingUp,
+      link: "/progress",
+    },
+    {
+      title: "Feedback & Surveys",
+      description: "Employee satisfaction and feedback",
+      icon: MessageSquare,
+      link: "/feedback",
     },
   ];
 
@@ -50,6 +71,25 @@ const Dashboard = () => {
                   {stat.title}
                 </h3>
               </Card>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {hrMetrics.map((metric) => {
+            const Icon = metric.icon;
+            return (
+              <Link to={metric.link} key={metric.title}>
+                <Card className="p-6 hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-4 mb-4">
+                    <Icon className="w-8 h-8 text-primary" />
+                    <h3 className="text-lg font-medium text-gray-900">
+                      {metric.title}
+                    </h3>
+                  </div>
+                  <p className="text-gray-600">{metric.description}</p>
+                </Card>
+              </Link>
             );
           })}
         </div>
