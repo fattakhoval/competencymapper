@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
@@ -9,10 +9,22 @@ interface AuthContextProps {
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Проверяем состояние авторизации при первом рендере
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    // Считываем из localStorage, если есть
+    const savedAuthStatus = localStorage.getItem("isAuthenticated");
+    return savedAuthStatus === "true";
+  });
 
-  const login = () => setIsAuthenticated(true);
-  const logout = () => setIsAuthenticated(false);
+  const login = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem("isAuthenticated", "true"); // Сохраняем статус в localStorage
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("isAuthenticated"); // Убираем статус из localStorage
+  };
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout }}>

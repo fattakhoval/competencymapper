@@ -6,19 +6,19 @@ import { Link } from "react-router-dom";
 const Dashboard = () => {
   const stats = [
     {
-      title: "Completed Tests",
+      title: "Завершенные тесты",
       value: "12",
       icon: Brain,
       color: "text-blue-600",
     },
     {
-      title: "Average Score",
+      title: "Средний балл",
       value: "85%",
       icon: Award,
       color: "text-green-600",
     },
     {
-      title: "Skills to Improve",
+      title: "Навыки, которые необходимо совершенствовать",
       value: "3",
       icon: Target,
       color: "text-orange-600",
@@ -27,20 +27,20 @@ const Dashboard = () => {
 
   const hrMetrics = [
     {
-      title: "Interview History",
-      description: "View and manage interview records",
+      title: "История интервью",
+      description: "Просмотр записей интервью и управление ими",
       icon: History,
       link: "/interviews",
     },
     {
-      title: "Progress Tracking",
-      description: "Monitor competency development",
+      title: "Отслеживание прогресса",
+      description: "Контроль развития компетенций",
       icon: TrendingUp,
       link: "/progress",
     },
     {
-      title: "Feedback & Surveys",
-      description: "Employee satisfaction and feedback",
+      title: "Отзывы и опросы",
+      description: "Удовлетворенность сотрудников и обратная связь",
       icon: MessageSquare,
       link: "/feedback",
     },
@@ -51,10 +51,10 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Professional Competency Assessment
+            Оценка профессиональной компетентности
           </h1>
           <p className="text-xl text-gray-600">
-            Track your progress and improve your professional skills
+            Следите за своим прогрессом и совершенствуйте свои профессиональные навыки
           </p>
         </div>
 
@@ -100,7 +100,7 @@ const Dashboard = () => {
               size="lg"
               className="bg-primary hover:bg-primary-hover text-white"
             >
-              Start New Assessment
+              Начать новую оценку
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
