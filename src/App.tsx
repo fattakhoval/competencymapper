@@ -35,7 +35,6 @@ const AppContent = () => {
             <Route path="/test" element={<TestInterface />} />
             <Route path="/results" element={<Results />} />
             <Route path="/interviews" element={<Interviews />} />
-            <Route path="/create-interview" element={<CreateInterview />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/feedback" element={<Feedback />} />
           </>
