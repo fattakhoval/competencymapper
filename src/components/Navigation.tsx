@@ -15,9 +15,18 @@ const Navigation = () => {
   const { isAuthenticated, logout } = useAuth(); // Используем контекст авторизации // Используем контекст авторизации
 
   const navItems = [
-    { path: "/", label: "Главная", icon: Home },
-    { path: "/test", label: "Тест", icon: ClipboardList },
-    { path: "/results", label: "Результаты", icon: BarChart2 },
+    { 
+      path: isAuthenticated ? "/" : "", 
+      label: isAuthenticated ? "Главная" : "", 
+      icon: Home },
+    { 
+      path: isAuthenticated ? "/test" : "", 
+      label: isAuthenticated ? "Тест" : "", 
+      icon: ClipboardList },
+    { 
+      path: isAuthenticated ? "/results" : "", 
+      label: isAuthenticated ? "Результаты" : "", 
+      icon:  BarChart2 },
     {
       path: isAuthenticated ? "#" : "/register",
       label: isAuthenticated ? "Выйти" : "Регистрация",
