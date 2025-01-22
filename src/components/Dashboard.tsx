@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   const hrMetrics = [
     {
-      title: "История интервьюInterview History",
+      title: "История интервью",
       description: "Просмотр записей интервью и управление ими",
       icon: History,
       link: "/interviews",

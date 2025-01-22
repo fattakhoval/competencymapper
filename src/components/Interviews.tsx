@@ -20,19 +20,19 @@ const Interviews = () => {
   const interviews = [
     {
       id: 1,
-      candidate: "Alex Johnson",
-      position: "Senior Developer",
+      candidate: "Алекс Джонсон",
+      position: "Старший разработчик",
       date: "2024-02-15",
       status: "Completed",
-      notes: "Strong technical skills, good cultural fit",
+      notes: "Сильные технические навыки, хорошая культурная адаптация",
     },
     {
       id: 2,
-      candidate: "Sarah Williams",
-      position: "Project Manager",
+      candidate: "Сара Уильямс",
+      position: "Проектный менеджер",
       date: "2024-02-16",
       status: "Scheduled",
-      notes: "Experience in Agile methodologies",
+      notes: "Опыт работы с гибкими методологиями",
     },
   ];
 
@@ -96,7 +96,7 @@ const Interviews = () => {
             type="text"
             placeholder="Поиск интервью..."
             value={searchQuery}
-            onИзменения={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
           />
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
