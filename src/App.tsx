@@ -9,6 +9,7 @@ import Dashboard from "./components/Dashboard";
 import TestInterface from "./components/TestInterface";
 import Results from "./components/Results";
 import Interviews from "./components/Interviews";
+import CreateInterview from "./components/CreateInterview";
 import Progress from "./components/Progress";
 import Feedback from "./components/Feedback";
 import Login from "./components/Login";
@@ -31,6 +32,7 @@ const App = () => {
                 <Route path="/test" element={<TestInterface />} />
                 <Route path="/results" element={<Results />} />
                 <Route path="/interviews" element={<Interviews />} />
+                <Route path="/create-interview" element={<CreateInterview />} />
                 <Route path="/progress" element={<Progress />} />
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="/login" element={<Login />} />
