@@ -9,32 +9,32 @@ import { ChevronRight, CheckCircle } from "lucide-react";
 const questions = [
   {
     id: 1,
-    question: "How effectively do you manage your time at work?",
+    question: "Насколько эффективно вы распоряжаетесь своим рабочим временем?",
     options: [
-      "Very effectively - I always complete tasks on time",
-      "Somewhat effectively - I usually meet deadlines",
-      "Need improvement - I often struggle with deadlines",
-      "Poor - I frequently miss deadlines",
+      "Очень эффективно - я всегда выполняю задачи вовремя",
+      "Довольно эффективно - я обычно укладываюсь в сроки",
+      "Требуется улучшение - я часто не справляюсь со сроками",
+      "Плохо - я часто пропускаю сроки",
     ],
   },
   {
     id: 2,
-    question: "How well do you work in team environments?",
+    question: "Насколько хорошо вы работаете в команде?",
     options: [
-      "Excellent - I thrive in team settings",
-      "Good - I work well with others",
-      "Fair - I can work in teams when necessary",
-      "Poor - I prefer working alone",
+      "Отлично - я преуспеваю в коллективе",
+      "Хорошо - я хорошо работаю с другими",
+      "Честно - я могу работать в команде, когда это необходимо",
+      "Плохо - я предпочитаю работать в одиночку",
     ],
   },
   {
     id: 3,
-    question: "How do you handle workplace stress?",
+    question: "Как вы справляетесь со стрессом на рабочем месте?",
     options: [
-      "Very well - I have effective coping strategies",
-      "Well - I usually manage stress appropriately",
-      "Moderately - I sometimes struggle with stress",
-      "Poor - I often feel overwhelmed",
+      "Очень хорошо - у меня есть эффективные стратегии преодоления",
+      "Хорошо - обычно я справляюсь со стрессом надлежащим образом",
+      "Умеренно - иногда я борюсь со стрессом",
+      "Плохо - я часто чувствую себя подавленным",
     ],
   },
 ];
@@ -64,10 +64,9 @@ const TestInterface = () => {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-gray-900">
-              Competency Assessment
-            </h2>
+              Оценка компетентности            </h2>
             <span className="text-sm text-gray-500">
-              Question {currentQuestion + 1} of {questions.length}
+              Вопрос {currentQuestion + 1} из {questions.length}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -117,11 +116,11 @@ const TestInterface = () => {
             >
               {currentQuestion < questions.length - 1 ? (
                 <>
-                  Next Question
+                  Следующий вопрос
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </>
               ) : (
-                "View Results"
+                "Посмотреть результаты"
               )}
             </Button>
           </div>

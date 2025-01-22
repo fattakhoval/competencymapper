@@ -13,21 +13,21 @@ const Feedback = () => {
     e.preventDefault();
     if (!satisfaction) {
       toast({
-        title: "Please select a satisfaction level",
+        title: "Пожалуйста, выберите уровень удовлетворенности",
         variant: "destructive",
       });
       return;
     }
     if (!feedback.trim()) {
       toast({
-        title: "Please provide feedback",
+        title: "Пожалуйста, оставьте отзыв",
         variant: "destructive",
       });
       return;
     }
     toast({
-      title: "Feedback submitted successfully",
-      description: "Thank you for your feedback!",
+      title: "Отзыв успешно добавлен successfully",
+      description: "Спасибо за ваш отзыв! you for your feedback!",
     });
     setFeedback("");
     setSatisfaction(null);
@@ -37,12 +37,12 @@ const Feedback = () => {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          Feedback & Surveys
+          Отзывы и опросы
         </h1>
 
         <Card className="p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            How satisfied are you with the assessment process?
+            Насколько вы удовлетворены процессом оценки?
           </h2>
           <div className="flex justify-center space-x-4 mb-8">
             {[1, 2, 3, 4, 5].map((rating) => (
@@ -65,25 +65,25 @@ const Feedback = () => {
                 htmlFor="feedback"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Share your thoughts about the assessment and learning process
+                Поделитесь своими мыслями об оценке и процессе обучения
               </label>
               <Textarea
                 id="feedback"
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Your feedback helps us improve..."
+                placeholder="Ваши отзывы помогают нам совершенствоваться..."
                 className="min-h-[150px]"
               />
             </div>
             <Button type="submit" className="w-full">
-              Submit Feedback
+              Отправить отзыв
             </Button>
           </form>
         </Card>
 
         <Card className="p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Recent Feedback
+            Последние отзывы
           </h2>
           <div className="space-y-4">
             {[
@@ -92,14 +92,14 @@ const Feedback = () => {
                 date: "2024-02-15",
                 rating: 4,
                 comment:
-                  "The assessment process was thorough and helped identify areas for improvement.",
+                  "Процесс оценки был тщательным и помог выявить области, требующие улучшения.",
               },
               {
                 id: 2,
                 date: "2024-02-14",
                 rating: 5,
                 comment:
-                  "Great learning experience! The feedback was constructive and actionable.",
+                  "Отличный опыт обучения! Отзывы были конструктивными и побуждали к действию.",
               },
             ].map((item) => (
               <div

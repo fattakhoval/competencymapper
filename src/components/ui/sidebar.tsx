@@ -50,14 +50,14 @@ const SidebarProvider = React.forwardRef<
   React.ComponentProps<"div"> & {
     defaultOpen?: boolean
     open?: boolean
-    onOpenChange?: (open: boolean) => void
+    onOpenИзменения?: (open: boolean) => void
   }
 >(
   (
     {
       defaultOpen = true,
       open: openProp,
-      onOpenChange: setOpenProp,
+      onOpenИзменения: setOpenProp,
       className,
       style,
       children,
@@ -192,7 +192,7 @@ const Sidebar = React.forwardRef<
 
     if (isMobile) {
       return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+        <Sheet open={openMobile} onOpenИзменения={setOpenMobile} {...props}>
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
