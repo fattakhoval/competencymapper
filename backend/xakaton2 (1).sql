@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Янв 24 2025 г., 04:11
+-- Время создания: Янв 24 2025 г., 05:48
 -- Версия сервера: 8.0.30
 -- Версия PHP: 8.1.9
 
@@ -35,6 +35,17 @@ CREATE TABLE `Feedback` (
   `rating` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `Feedback`
+--
+
+INSERT INTO `Feedback` (`id`, `userId`, `text`, `createdAt`, `rating`) VALUES
+(1, 1, '123', '2025-01-24 05:24:56', 5),
+(2, 1, '5446', '2025-01-24 05:26:53', 5),
+(3, 1, '124', '2025-01-24 05:31:30', 5),
+(4, 1, 'test', '2025-01-24 05:32:20', 2),
+(5, 1, 'Работает', '2025-01-24 05:32:43', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -56,7 +67,8 @@ CREATE TABLE `Interviews` (
 --
 
 INSERT INTO `Interviews` (`id`, `candidate`, `position`, `date`, `notes`, `status`, `createdAt`) VALUES
-(1, 'Олег Львович', 'Режиссёр', '2025-01-24', '123', 'Scheduled', '2025-01-24 01:10:34');
+(1, 'Олег Львович', 'Режиссёр', '2025-01-24', 'Ждём с нетерпением', 'Scheduled', '2025-01-24 01:10:34'),
+(2, 'Евгений Шеляки', 'Режиссёр', '2025-01-24', 'Интересно', 'Completed', '2025-01-24 02:26:42');
 
 -- --------------------------------------------------------
 
@@ -107,7 +119,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `created_at`, `updated_at`) VALUES
 (1, 'Денис', 'honorxpremium75@gmail.com', '$2b$10$JKYfD6iDVYSi0KJBn14CI.f/4fEBGk5TKmMCwUrTPASGfe7SxsKBe', 'user', '2025-01-24 00:29:45', '2025-01-24 00:29:45'),
-(3, 'Денис2', 'lakos208@gmail.com', '$2b$10$CO02DknMMrKYaFep/JjWe.R/Pjr45DMzbQVgmBj2cHpEFKz5yH1pq', 'user', '2025-01-24 00:38:57', '2025-01-24 00:38:57');
+(5, 'Наталья', 'nata@mail.ru', '$2b$10$TwvxZXtLdqqQIxJsA.BmQeU7JMB7g26xxicwoA4QqYES0DUKd8dj2', 'user', '2025-01-24 02:44:59', '2025-01-24 02:44:59');
 
 --
 -- Индексы сохранённых таблиц
@@ -155,13 +167,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `Feedback`
 --
 ALTER TABLE `Feedback`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT для таблицы `Interviews`
 --
 ALTER TABLE `Interviews`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT для таблицы `TestResults`
@@ -179,7 +191,7 @@ ALTER TABLE `Tests`
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц

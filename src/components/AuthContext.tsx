@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
+  userId: string | null;
   login: () => void;
   logout: () => void;
 }
@@ -16,18 +17,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return savedAuthStatus === "true";
   });
 
+  const [userId, setUserId] = useState<string | null>(() => {
+    return localStorage.getItem("userId");
+  });
+
   const login = () => {
     setIsAuthenticated(true);
-    localStorage.setItem("isAuthenticated", "true"); // Сохраняем статус в localStorage
+    localStorage.setItem("isAuthenticated", "true");
+    // Здесь можно установить userId, если он приходит с сервером после логина
+    setUserId("someUserId"); // Замените на реальный userId, полученный при логине
+    localStorage.setItem("userId", "someUserId"); // Сохраняем userId в localStorage
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem("isAuthenticated"); // Убираем статус из localStorage
+    setUserId(null);
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("userId");
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userId, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

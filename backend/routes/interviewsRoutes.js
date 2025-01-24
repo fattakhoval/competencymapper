@@ -13,16 +13,14 @@ module.exports = (db) => {
     router.get('/', async (req, res) => {
         console.log('Fetching interviews...');
         try {
-            const [interviews] = await req.db.query('SELECT * FROM Interviews');
-            console.log('Interviews fetched:', interviews);
+            const [interviews] = await db.query('SELECT * FROM Interviews');
             res.status(200).json(interviews);
         } catch (err) {
-            console.error('Error fetching interviews:', err); // Логируем ошибку
+            console.error('Error fetching interviews:', err);
             res.status(500).json({ error: 'Failed to fetch interviews' });
         }
     });
-
-    // Создание нового интервью
+    
     // Создание нового интервью
     router.post('/', async (req, res) => {
         const { candidate, position, date, notes } = req.body;

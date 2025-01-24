@@ -24,8 +24,6 @@ module.exports = (db) => {
                 [name, email, hashedPassword, role]
             );
 
-            // Лог успешной регистрации
-            console.log(`User registered successfully: ${name}, ${email}`);
             res.status(201).json({ message: 'User registered', userId: result.insertId });
         } catch (err) {
             console.error(err);
@@ -33,13 +31,11 @@ module.exports = (db) => {
         }
     });
 
-
     // Авторизация
     router.post('/login', async (req, res) => {
         try {
             const { email, password } = req.body;
 
-            // Поиск пользователя в БД
             const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
             if (rows.length === 0) {
                 return res.status(401).json({ error: 'Invalid credentials' });
@@ -51,8 +47,7 @@ module.exports = (db) => {
                 return res.status(401).json({ error: 'Invalid credentials' });
             }
 
-            // Генерация токена
-            const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
+            const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' }); // Токен с истечением через 1 час
             res.status(200).json({ token });
         } catch (err) {
             console.error(err);

@@ -3,31 +3,38 @@ import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { UserPlus } from "lucide-react";
-import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import axios from "axios";
+
 const Register = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState<string | null>(null); // Состояние для отображения сообщений
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', {
+      const response = await axios.post("http://localhost:5000/api/users/register", {
         email,
         password,
         name,
-        role: 'user',
+        role: "user",
       });
 
-      console.log('Registered:', response.data);
-      toast.success('Регистрация прошла успешно!');
+      console.log("Registered:", response.data);
+      setMessage("Регистрация прошла успешно!"); // Сообщение об успешной регистрации
     } catch (error) {
-      console.error('Registration error:', error);
-      toast.error('Ошибка при регистрации. Попробуйте снова.');
+      console.error("Registration error:", error);
+
+      // Обработка ошибки дублирования email
+      // Сообщение о дублировании
+      if (error.response?.status === 400) {
+        setMessage("Пользователь с таким email уже существует."); // Ошибка с некорректными данными
+      } else {
+        setMessage("Ошибка при регистрации. Попробуйте снова.");
+      }
     }
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -41,7 +48,7 @@ const Register = () => {
           <div className="rounded-md shadow-sm space-y-4">
             <div>
               <label htmlFor="name" className="sr-only">
-                Email
+                Имя
               </label>
               <Input
                 id="name"
@@ -90,6 +97,14 @@ const Register = () => {
             </Button>
           </div>
         </form>
+
+        {/* Добавим вывод сообщения */}
+        {message && (
+          <div className="mt-4 text-center text-lg text-red-600">
+            {message}
+          </div>
+        )}
+
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Уже есть аккаунт?{" "}

@@ -1,44 +1,82 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "./AuthContext";
 
 const Feedback = () => {
   const [feedback, setFeedback] = useState("");
   const [satisfaction, setSatisfaction] = useState<number | null>(null);
   const { toast } = useToast();
+  const [feedbackList, setFeedbackList] = useState([]);
+  const { userId } = useAuth(); // Получаем userId из контекста
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Получение последних отзывов
+    const fetchFeedback = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/feedback", {
+          method: 'GET',
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`, // Добавьте токен здесь
+          },
+        });
+        const data = await response.json();
+        console.log('Data fetched from feedback API:', data); // Лог, чтобы проверить, что получили
+        setFeedbackList(data);
+      } catch (error) {
+        console.error("Error fetching feedback:", error);
+      }
+    };
+
+    fetchFeedback();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!satisfaction) {
-      toast({
-        title: "Пожалуйста, выберите уровень удовлетворенности",
-        variant: "destructive",
-      });
+    if (!satisfaction || !feedback.trim()) {
+      return;
+    } // Сначала проверяем на входные данные// Сначала проверяем на входные данные
+
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      toast({ title: "Ошибка", description: "Не удалось получить информацию о пользователе", variant: "destructive" });
       return;
     }
-    if (!feedback.trim()) {
-      toast({
-        title: "Пожалуйста, оставьте отзыв",
-        variant: "destructive",
+
+    const newFeedback = { text: feedback, rating: satisfaction, userId };
+
+    try {
+      const response = await fetch("http://localhost:5000/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}` // Добавляем заголовок с токеном
+        },
+        body: JSON.stringify(newFeedback),
       });
-      return;
+
+      if (!response.ok) {
+        throw new Error("Ошибка при добавлении отзыва");
+      }
+
+      setFeedback("");
+      setSatisfaction(null);
+      toast({ title: "Отзыв успешно добавлен", description: "Спасибо за ваш отзыв!" });
+
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      toast({ title: "Ошибка", description: "Не удалось отправить отзыв", variant: "destructive" });
     }
-    toast({
-      title: "Отзыв успешно добавлен successfully",
-      description: "Спасибо за ваш отзыв! you for your feedback!",
-    });
-    setFeedback("");
-    setSatisfaction(null);
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          Отзывы и опросы
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Отзывы и опросы</h1>
 
         <Card className="p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -49,11 +87,10 @@ const Feedback = () => {
               <button
                 key={rating}
                 onClick={() => setSatisfaction(rating)}
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium transition-colors ${
-                  satisfaction === rating
-                    ? "bg-primary text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium transition-colors ${satisfaction === rating
+                  ? "bg-primary text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
               >
                 {rating}
               </button>
@@ -82,26 +119,9 @@ const Feedback = () => {
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Последние отзывы
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Последние отзывы</h2>
           <div className="space-y-4">
-            {[
-              {
-                id: 1,
-                date: "2024-02-15",
-                rating: 4,
-                comment:
-                  "Процесс оценки был тщательным и помог выявить области, требующие улучшения.",
-              },
-              {
-                id: 2,
-                date: "2024-02-14",
-                rating: 5,
-                comment:
-                  "Отличный опыт обучения! Отзывы были конструктивными и побуждали к действию.",
-              },
-            ].map((item) => (
+            {feedbackList.map((item) => (
               <div
                 key={item.id}
                 className="border-b border-gray-200 last:border-0 pb-4 last:pb-0"
@@ -111,11 +131,8 @@ const Feedback = () => {
                     {Array.from({ length: 5 }).map((_, index) => (
                       <svg
                         key={index}
-                        className={`w-4 h-4 ${
-                          index < item.rating
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }`}
+                        className={`w-4 h-4 ${index < item.rating ? "text-yellow-400" : "text-gray-300"
+                          }`}
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -124,10 +141,10 @@ const Feedback = () => {
                     ))}
                   </div>
                   <span className="text-sm text-gray-500 ml-2">
-                    {new Date(item.date).toLocaleDateString()}
+                    {new Date(item.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-gray-600">{item.comment}</p>
+                <p className="text-gray-600">{item.text}</p>
               </div>
             ))}
           </div>
