@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { UserPlus } from "lucide-react";
+import { toast } from 'react-hot-toast';
 import axios from 'axios';
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +12,6 @@ const Register = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password, name }); // Проверьте, что данные правильные
     try {
       const response = await axios.post('http://localhost:5000/api/users/register', {
         email,
@@ -19,9 +19,12 @@ const Register = () => {
         name,
         role: 'user',
       });
+
       console.log('Registered:', response.data);
+      toast.success('Регистрация прошла успешно!');
     } catch (error) {
       console.error('Registration error:', error);
+      toast.error('Ошибка при регистрации. Попробуйте снова.');
     }
   };
 
