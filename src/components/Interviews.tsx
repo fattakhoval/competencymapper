@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,26 +16,27 @@ import { useNavigate } from "react-router-dom";
 
 const Interviews = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [interviews, setInterviews] = useState([]);
   const navigate = useNavigate();
 
-  const interviews = [
-    {
-      id: 1,
-      candidate: "Алекс Джонсон",
-      position: "Старший разработчик",
-      date: "2024-02-15",
-      status: "Completed",
-      notes: "Сильные технические навыки, хорошая культурная адаптация",
-    },
-    {
-      id: 2,
-      candidate: "Сара Уильямс",
-      position: "Проектный менеджер",
-      date: "2024-02-16",
-      status: "Scheduled",
-      notes: "Опыт работы с гибкими методологиями",
-    },
-  ];
+  useEffect(() => {
+    const fetchInterviews = async () => {
+      try {
+        const { data } = await axios.get("http://localhost:5000/api/interviews");
+        setInterviews(data);
+      } catch (error) {
+        console.error("Error fetching interviews:", error);
+      }
+    };
+
+    fetchInterviews();
+  }, []);
+
+  const filteredInterviews = interviews.filter(
+    (interview) =>
+      interview.candidate.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      interview.position.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -54,30 +56,15 @@ const Interviews = () => {
                   <DialogTitle>Отчеты по интервью</DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
-                  <div className="space-y-4">
-                    <div className="grid gap-4">
-                      <div className="flex flex-col gap-2">
-                        <h3 className="font-semibold">Общая статистика</h3>
-                        <p>Всего интервью: {interviews.length}</p>
-                        <p>
-                          Завершенных:{" "}
-                          {
-                            interviews.filter(
-                              (interview) => interview.status === "Completed"
-                            ).length
-                          }
-                        </p>
-                        <p>
-                          Запланированных:{" "}
-                          {
-                            interviews.filter(
-                              (interview) => interview.status === "Scheduled"
-                            ).length
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <p>Всего интервью: {interviews.length}</p>
+                  <p>
+                    Завершено:{" "}
+                    {interviews.filter((interview) => interview.status === "Completed").length}
+                  </p>
+                  <p>
+                    Запланировано:{" "}
+                    {interviews.filter((interview) => interview.status === "Scheduled").length}
+                  </p>
                 </div>
               </DialogContent>
             </Dialog>
@@ -103,7 +90,7 @@ const Interviews = () => {
         </div>
 
         <div className="space-y-4">
-          {interviews.map((interview) => (
+          {filteredInterviews.map((interview) => (
             <Card key={interview.id} className="p-6">
               <div className="flex justify-between items-start">
                 <div>

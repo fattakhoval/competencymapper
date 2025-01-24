@@ -8,15 +8,33 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import axios from "axios";
 
 const CreateInterview = () => {
   const navigate = useNavigate();
-  const [date, setDate] = useState<Date>();
+  const [formData, setFormData] = useState({
+    candidate: "",
+    position: "",
+    date: null,
+    notes: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Interview created");
-    navigate("/interviews");
+    try {
+      await axios.post("http://localhost:5000/api/interviews", {
+        ...formData,
+        date: formData.date ? formData.date.toISOString() : null,
+      });
+      navigate("/interviews");
+    } catch (error) {
+      console.error("Error creating interview:", error);
+    }
   };
 
   return (
@@ -32,14 +50,28 @@ const CreateInterview = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Имя кандидата
               </label>
-              <Input type="text" placeholder="Введите имя кандидата" required />
+              <Input
+                type="text"
+                name="candidate"
+                placeholder="Введите имя кандидата"
+                required
+                value={formData.candidate}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Должность
               </label>
-              <Input type="text" placeholder="Введите должность" required />
+              <Input
+                type="text"
+                name="position"
+                placeholder="Введите должность"
+                required
+                value={formData.position}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
@@ -52,18 +84,18 @@ const CreateInterview = () => {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
+                      !formData.date && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : "Выберите дату"}
+                    {formData.date ? format(formData.date, "PPP") : "Выберите дату"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
-                    selected={date}
-                    onSelect={setDate}
+                    selected={formData.date}
+                    onSelect={(date) => setFormData({ ...formData, date })}
                     initialFocus
                   />
                 </PopoverContent>
@@ -75,8 +107,11 @@ const CreateInterview = () => {
                 Заметки
               </label>
               <Textarea
+                name="notes"
                 placeholder="Добавьте заметки о кандидате"
                 className="h-32"
+                value={formData.notes}
+                onChange={handleChange}
               />
             </div>
 
