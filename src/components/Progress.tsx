@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
   LineChart,
@@ -11,59 +12,58 @@ import {
 } from "recharts";
 
 const Progress = () => {
-  const progressData = [
-    {
-      month: "Январь",
-      technical: 75,
-      leadership: 65,
-      communication: 80,
-    },
-    {
-      month: "Февраль",
-      technical: 78,
-      leadership: 68,
-      communication: 82,
-    },
-    {
-      month: "Март",
-      technical: 82,
-      leadership: 72,
-      communication: 85,
-    },
-    {
-      month: "Апрель",
-      technical: 85,
-      leadership: 75,
-      communication: 87,
-    },
-    {
-      month: "Май",
-      technical: 88,
-      leadership: 80,
-      communication: 88,
-    },
-  ];
+  const [progressData, setProgressData] = useState([]);
+  const [competencies, setCompetencies] = useState([]);
 
-  const competencies = [
-    {
-      name: "Технические навыки",
-      current: 88,
-      previous: 75,
-      Изменения: "+13",
-    },
-    {
-      name: "Руководство",
-      current: 80,
-      previous: 65,
-      Изменения: "+15",
-    },
-    {
-      name: "Коммуникация",
-      current: 88,
-      previous: 80,
-      Изменения: "+8",
-    },
-  ];
+  useEffect(() => {
+    // Генерируем случайные данные для каждого месяца
+    const months = ["Январь", "Февраль", "Март", "Апрель", "Май"];
+    const generateRandomProgress = (baseValue) => {
+      return Math.floor(baseValue + Math.random() * 15);
+    };
+
+    const generatedData = months.map((month, index) => {
+      const technical = generateRandomProgress(65 + index * 3);
+      const leadership = generateRandomProgress(60 + index * 3);
+      const communication = generateRandomProgress(70 + index * 3);
+
+      return {
+        month,
+        technical,
+        leadership,
+        communication,
+      };
+    });
+
+    setProgressData(generatedData);
+
+    // Вычисляем текущие и предыдущие значения для компетенций
+    const latest = generatedData[generatedData.length - 1];
+    const first = generatedData[0];
+
+    const competenciesData = [
+      {
+        name: "Технические навыки",
+        current: latest.technical,
+        previous: first.technical,
+        Изменения: `+${latest.technical - first.technical}`,
+      },
+      {
+        name: "Руководство",
+        current: latest.leadership,
+        previous: first.leadership,
+        Изменения: `+${latest.leadership - first.leadership}`,
+      },
+      {
+        name: "Коммуникация",
+        current: latest.communication,
+        previous: first.communication,
+        Изменения: `+${latest.communication - first.communication}`,
+      },
+    ];
+
+    setCompetencies(competenciesData);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -81,26 +81,26 @@ const Progress = () => {
               <LineChart data={progressData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis />
+                <YAxis domain={[0, 100]} />
                 <Tooltip />
                 <Legend />
                 <Line
                   type="monotone"
                   dataKey="technical"
                   stroke="#1E40AF"
-                  name="Technical Skills"
+                  name="Технические навыки"
                 />
                 <Line
                   type="monotone"
                   dataKey="leadership"
                   stroke="#047857"
-                  name="Leadership"
+                  name="Руководство"
                 />
                 <Line
                   type="monotone"
                   dataKey="communication"
                   stroke="#B91C1C"
-                  name="Communication"
+                  name="Коммуникация"
                 />
               </LineChart>
             </ResponsiveContainer>

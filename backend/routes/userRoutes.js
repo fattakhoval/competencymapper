@@ -35,25 +35,38 @@ module.exports = (db) => {
     router.post('/login', async (req, res) => {
         try {
             const { email, password } = req.body;
-
             const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+            
             if (rows.length === 0) {
                 return res.status(401).json({ error: 'Invalid credentials' });
             }
-
+     
             const user = rows[0];
             const isPasswordValid = await bcrypt.compare(password, user.password);
+            
             if (!isPasswordValid) {
                 return res.status(401).json({ error: 'Invalid credentials' });
             }
-
-            const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' }); // Токен с истечением через 1 час
-            res.status(200).json({ token });
+     
+            const token = jwt.sign(
+                { id: user.id, role: user.role }, 
+                process.env.JWT_SECRET, 
+                { expiresIn: '1h' }
+            );
+     
+            const response = {
+                token,
+                userId: user.id
+            };
+     
+            console.log('Login response:', response); // Debug log
+            res.status(200).json(response);
+     
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Login failed' });
         }
-    });
+     });
 
     return router;
 };

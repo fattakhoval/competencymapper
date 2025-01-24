@@ -1,27 +1,88 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { Download, RefreshCw, MessageSquare } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
-const currentData = [
-  { skill: "Управление временем", score: 85 },
-  { skill: "Командное сотрудничество", score: 92 },
-  { skill: "Управление стрессом", score: 78 },
-  { skill: "Коммуникация", score: 88 },
-  { skill: "Решение проблем", score: 90 },
-];
-
-const progressData = [
-  { month: "Январь", score: 75 },
-  { month: "Февраль", score: 78 },
-  { month: "Март", score: 82 },
-  { month: "Апрель", score: 85 },
-  { month: "Май", score: 88 },
-  { month: "Июнь", score: 92 },
-];
 
 const Results = () => {
+  const [currentData, setCurrentData] = useState([]);
+  const [progressData, setProgressData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/tests", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const results = response.data;
+
+        const currentSkills = results.slice(0, 5).map(result => ({
+          skill: `Skills for ${new Date(result.completedAt).toLocaleDateString("en-US")}`,
+          score: result.score,
+        }));
+        setCurrentData(currentSkills);
+
+        const months = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+        const progress = months.map((month, index) => {
+          const resultForMonth = results.find(result => {
+            const resultMonth = new Date(result.completedAt).getMonth();
+            return resultMonth === index;
+          });
+          return {
+            month: month,
+            score: resultForMonth ? resultForMonth.score : 0,
+          };
+        });
+        setProgressData(progress);
+      } catch (error) {
+        console.error("Ошибка при получении данных:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const downloadReport = () => {
+    const doc = new jsPDF();
+  
+    // Заголовок отчёта
+    doc.setFontSize(16);
+    doc.text("Evaluation Results", 10, 10);
+  
+    // Текущие показатели
+    doc.setFontSize(14);
+    doc.text("Current Competence Indicators", 10, 20);
+    const currentTable = currentData.map(data => [data.skill, data.score]);
+    doc.autoTable({
+      head: [["Skill", "Evaluation"]],
+      body: currentTable,
+      startY: 25,
+    });
+  
+    // Прогресс
+    doc.text("All-Time Progress", 10, doc.previousAutoTable.finalY + 10);
+    const progressTable = progressData.map(data => [data.month, data.score]);
+    doc.autoTable({
+      head: [["Month", "Evaluation"]],
+      body: progressTable,
+      startY: doc.previousAutoTable.finalY + 15,
+    });
+  
+    // Сохранение PDF
+    doc.save("Report.pdf");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -30,7 +91,7 @@ const Results = () => {
             Результаты оценки
           </h1>
           <p className="text-xl text-gray-600">
-            Вот как вы проявили себя в различных областях деятельности
+            Ознакомьтесь с результатами вашей деятельности
           </p>
         </div>
 
@@ -68,46 +129,8 @@ const Results = () => {
           </div>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <Card className="p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Ключевые сильные стороны
-            </h3>
-            <ul className="space-y-3">
-              <li className="flex items-center text-green-600">
-                <span className="w-4 h-4 bg-green-600 rounded-full mr-3"></span>
-                Командное сотрудничество (92%)
-              </li>
-              <li className="flex items-center text-green-600">
-                <span className="w-4 h-4 bg-green-600 rounded-full mr-3"></span>
-                Решение проблем (90%)
-              </li>
-              <li className="flex items-center text-green-600">
-                <span className="w-4 h-4 bg-green-600 rounded-full mr-3"></span>
-                Коммуникация (88%)
-              </li>
-            </ul>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Области, требующие улучшения
-            </h3>
-            <ul className="space-y-3">
-              <li className="flex items-center text-orange-600">
-                <span className="w-4 h-4 bg-orange-600 rounded-full mr-3"></span>
-                Управление стрессом (78%)
-              </li>
-              <li className="flex items-center text-orange-600">
-                <span className="w-4 h-4 bg-orange-600 rounded-full mr-3"></span>
-                Тайм-менеджмент (85%)
-              </li>
-            </ul>
-          </Card>
-        </div>
-
         <div className="flex justify-center space-x-4">
-          <Button className="bg-primary hover:bg-primary-hover text-white">
+          <Button className="bg-primary hover:bg-primary-hover text-white" onClick={downloadReport}>
             <Download className="mr-2 h-4 w-4" />
             Скачать отчёт
           </Button>

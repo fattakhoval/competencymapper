@@ -14,6 +14,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
+    
     e.preventDefault();
     setError(null);
     try {
@@ -21,11 +22,14 @@ const Login = () => {
         email,
         password,
       });
-
-      // Сохраняем токен в localStorage
+      console.log('Response data:', response.data);
       localStorage.setItem("token", response.data.token);
-      login(); // Устанавливаем авторизацию через контекст
-      navigate("/"); // Редирект на главную
+      localStorage.setItem("userId", response.data.userId);
+      // Сохраняем токен и userId в localStorage
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", response.data.userId);
+      login();
+      navigate("/");
     } catch (error) {
       setError("Неверные данные для входа");
       console.error("Login error:", error);

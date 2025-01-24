@@ -2,14 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
-const jwt = require('jsonwebtoken'); // Подключаем библиотеку для работы с JWT
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-// Настройка соединения с базой данных
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -17,15 +16,12 @@ const db = mysql.createPool({
     database: process.env.DB_NAME,
 });
 
-// Добавляем db в app.locals
 app.locals.db = db;
 
-// Проверка соединения с базой данных
 db.getConnection()
     .then(() => console.log('Database connection successful'))
     .catch(err => console.error('Error connecting to the database', err));
 
-// Middleware для проверки токена
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -37,12 +33,29 @@ const authenticateToken = (req, res, next) => {
         if (err) {
             return res.status(403).json({ message: 'Invalid or expired token' });
         }
-        req.user = user; // Сохраняем информацию о пользователе в запросе
+        req.user = user;
         next();
     });
 };
 
-// Подключение маршрутов
+
+// Тестовые маршруты
+const testRouter = require('./routes/testRoutes')(db, authenticateToken);
+app.use('/api/tests', testRouter);
+
+
+function calculateScore(answers) {
+    const maxScore = Object.keys(answers).length * 5;
+    let score = 0;
+
+    Object.entries(answers).forEach(([questionId, answer]) => {
+        const answerIndex = questions[questionId - 1].options.indexOf(answer);
+        score += 5 - answerIndex;
+    });
+
+    return Math.round((score / maxScore) * 100);
+}
+
 const userRoutes = require('./routes/userRoutes')(db, jwt);
 app.use('/api/users', userRoutes);
 
@@ -52,6 +65,5 @@ app.use('/api/interviews', interviewRoutes);
 const feedbackRoutes = require('./routes/feedbackRoutes')(db, authenticateToken);
 app.use('/api/feedback', feedbackRoutes);
 
-// Сервер
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
