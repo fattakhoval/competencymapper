@@ -16,9 +16,17 @@ const db = mysql.createPool({
     database: process.env.DB_NAME,
 });
 
+// Проверка соединения с базой данных
+db.getConnection()
+    .then(() => console.log('Database connection successful'))
+    .catch(err => console.error('Error connecting to the database', err));
+
 // Маршруты
 const userRoutes = require('./routes/userRoutes')(db);
 app.use('/api/users', userRoutes);
+
+const interviewRoutes = require('./routes/interviewsRoutes')(db);
+app.use('/api/interviews', interviewRoutes);
 
 // Сервер
 const PORT = process.env.PORT || 5000;
