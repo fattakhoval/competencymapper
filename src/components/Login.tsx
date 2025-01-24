@@ -22,6 +22,7 @@ const Login = () => {
         password,
       });
 
+      // Сохраняем токен в localStorage
       localStorage.setItem("token", response.data.token);
       login(); // Устанавливаем авторизацию через контекст
       navigate("/"); // Редирект на главную
