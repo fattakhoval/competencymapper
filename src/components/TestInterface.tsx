@@ -29,39 +29,38 @@ const TestInterface = () => {
    }, 0);
  };
 
-const saveResults = async () => {
+ const saveResults = async () => {
   try {
     const token = localStorage.getItem('token');
-    console.log('Token retrieved:', token ? 'Present' : 'Missing');
-    
+    const userId = localStorage.getItem('userId');
+ 
+    if (!userId) {
+      console.error('User ID is missing.');
+      return;
+    }
+ 
     const result = {
-      questions: randomQuestions.map(q => ({
-        question_id: q.id,
-        question: q.question,
-        answer: answers[q.id]
-      })),
+      userId,
       score: calculateScore()
     };
-    console.log('Prepared results:', result);
-    
-    console.log('Sending request to:', 'http://localhost:5000/api/tests/test-results');
-    const response = await axios.post('http://localhost:5000/api/tests/test-results', result, {
+ 
+    const response = await axios.post('http://localhost:5000/api/tests', result, {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        'Authorization': `Bearer ${token}`,
+      },
     });
+ 
     console.log('Server response:', response.data);
-    
-    console.log('Navigating to results page');
     navigate("/results");
+    
   } catch (error) {
-    console.error('Error details:', {
-      message: error.message,
+    console.error('Error saving test results:', {
+      message: error.message, 
       response: error.response?.data,
-      status: error.response?.status
+      status: error.response?.status,
     });
   }
-};
+ };
 
  const handleAnswer = (value: string) => {
    setAnswers({ ...answers, [randomQuestions[currentQuestion].id]: value });

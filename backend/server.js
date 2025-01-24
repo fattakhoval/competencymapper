@@ -41,8 +41,8 @@ const authenticateToken = (req, res, next) => {
 
 
 // Тестовые маршруты
-const testRoutes = require('./routes/testRoutes')(db);
-app.use('/api/tests', testRoutes);
+const testRouter = require('./routes/testRoutes')(db, authenticateToken);
+app.use('/api/tests', testRouter);
 
 function calculateScore(answers) {
    const maxScore = Object.keys(answers).length * 5;
