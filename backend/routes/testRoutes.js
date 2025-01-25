@@ -17,7 +17,14 @@ module.exports = (db, authenticateToken) => {
                 'SELECT score, completedAt FROM TestResults WHERE userId = ? ORDER BY completedAt DESC',
                 [userId]
             );
-            res.status(200).json(results);
+    
+            // Преобразуем JSON-строку обратно в объект, если это необходимо
+            const parsedResults = results.map(result => ({
+                ...result,
+                score: JSON.parse(result.score),
+            }));
+    
+            res.status(200).json(parsedResults);
         } catch (error) {
             console.error('Error retrieving test results:', error);
             res.status(500).json({ error: 'Failed to retrieve test results' });
@@ -26,28 +33,47 @@ module.exports = (db, authenticateToken) => {
 
     // Сохранение результата теста
     router.post('/', async (req, res) => {
+        console.log("Request body:", req.body);
+        console.log("Decoded user ID from token:", req.user?.id);
+      
         try {
-            const userId = req.user.id;
-            const { score } = req.body;
-
-            if (!score) {
-                return res.status(400).json({ error: 'Score is required' });
-            }
-
-            const [result] = await db.query(
-                'INSERT INTO TestResults (userId, score, completedAt) VALUES (?, ?, NOW())',
-                [userId, score]
-            );
-
-            res.status(201).json({
-                message: 'Test result saved successfully',
-                resultId: result.insertId,
-            });
+          // Проверяем, что пользователь авторизован
+          if (!req.user || !req.user.id) {
+            console.error("User not authenticated");
+            return res.status(400).json({ error: 'User not authenticated' });
+          }
+      
+          const userId = req.user.id;
+          const { results } = req.body;
+      
+          // Проверяем, что results является объектом
+          if (!results || typeof results !== 'object' || Array.isArray(results)) {
+            console.error("Invalid results format:", results);
+            return res.status(400).json({ error: 'Results must be a valid object' });
+          }
+      
+          // Преобразуем результаты в JSON
+          const resultsJson = JSON.stringify(results);
+      
+          // Выполняем запрос к базе данных
+          const [result] = await db.query(
+            'INSERT INTO TestResults (userId, score, completedAt) VALUES (?, ?, NOW())',
+            [userId, resultsJson]
+          );
+      
+          // Успешный ответ
+          res.status(201).json({
+            message: 'Test result saved successfully',
+            resultId: result.insertId,
+          });
         } catch (error) {
-            console.error('Error saving test result:', error);
-            res.status(500).json({ error: 'Failed to save test result' });
+          // Логируем ошибку
+          console.error("Error saving test result:", error);
+          res.status(500).json({ error: 'Failed to save test result' });
         }
-    });
+      });
+      
+
 
     return router;
 };

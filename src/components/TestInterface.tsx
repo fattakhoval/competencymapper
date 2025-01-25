@@ -12,50 +12,74 @@ const TestInterface = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [randomQuestions, setRandomQuestions] = useState<any[]>([]);
-  const [score, setScore] = useState<number>(0); // состояние для хранения баллов
   const navigate = useNavigate();
 
   useEffect(() => {
-    const allQuestions = questionsData.questions;
-    const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
-    setRandomQuestions(shuffled.slice(0, 4));
+    const groupedQuestions = questionsData.questions.reduce((acc, question) => {
+      if (!acc[question.category]) acc[question.category] = [];
+      acc[question.category].push(question);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    const selectedQuestions = Object.values(groupedQuestions).map(
+      questions => questions[Math.floor(Math.random() * questions.length)]
+    );
+
+    setRandomQuestions(selectedQuestions);
   }, []);
 
-  const calculateScore = () => {
-    return Object.entries(answers).reduce((score, [_, answer]) => {
+  const calculateCategoryScore = (category: string): number => {
+    const categoryQuestions = randomQuestions.filter(q => q.category === category);
+    return categoryQuestions.reduce((score, question) => {
+      const answer = answers[question.id];
+      if (!answer) return score;
+
       const points = answer.includes("Очень") || answer.includes("Отлично") ? 4 :
-        answer.includes("Хорошо") || answer.includes("Довольно") ? 3 :
-          answer.includes("Умеренно") || answer.includes("Требуется") ? 2 : 1;
+                    answer.includes("Хорошо") || answer.includes("Довольно") ? 3 :
+                    answer.includes("Умеренно") || answer.includes("Требуется") ? 2 : 1;
       return score + points;
     }, 0);
   };
 
+  const calculateCategoryPercentage = (category: string): number => {
+    const categoryQuestions = randomQuestions.filter(q => q.category === category);
+    const maxPossibleScore = categoryQuestions.length * 4;
+    const actualScore = calculateCategoryScore(category);
+    return (actualScore / maxPossibleScore) * 100;
+  };
+
   const saveResults = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
 
       if (!userId) {
-        console.error('User ID is missing.');
+        console.error("User ID is missing.");
         return;
       }
 
-      const result = {
-        userId,
-        score: calculateScore(),
-      };
+      const categories = [...new Set(randomQuestions.map(q => q.category))];
+      const resultsByCategory = categories.reduce((acc, category) => {
+        acc[category] = {
+          score: calculateCategoryScore(category),
+          percentage: calculateCategoryPercentage(category)
+        };
+        return acc;
+      }, {} as Record<string, { score: number; percentage: number }>);
 
-      const response = await axios.post('http://localhost:5000/api/tests', result, {
+      await axios.post("http://localhost:5000/api/tests", {
+        userId,
+        results: resultsByCategory
+      }, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
       });
 
-      console.log('Server response:', response.data);
       navigate("/results");
-
-    } catch (error) {
-      console.error('Error saving test results:', {
+    } catch (error: any) {
+      console.error("Error saving test results:", {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
@@ -71,7 +95,6 @@ const TestInterface = () => {
     if (currentQuestion < randomQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      setScore(calculateScore());  // Подсчитываем итоговый балл после последнего вопроса
       saveResults();
     }
   };
@@ -150,15 +173,6 @@ const TestInterface = () => {
             </Button>
           </div>
         </Card>
-
-        {/* Добавляем отображение итогового балла */}
-        {currentQuestion === randomQuestions.length && (
-          <Card className="p-6 mt-8">
-            <h3 className="text-xl font-medium text-gray-900 mb-6">
-              Ваш итоговый балл: {score}
-            </h3>
-          </Card>
-        )}
       </div>
     </div>
   );
