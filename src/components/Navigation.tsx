@@ -11,21 +11,22 @@ const Navigation = () => {
 
   // Определяем элементы навигации в зависимости от роли пользователя
   const navItems = [
-    { 
-      path: isAuthenticated ? "/" : "", 
-      label: isAuthenticated ? "Главная" : "", 
-      icon: Home 
-    },
+
     ...(userRole !== 'admin' ? [
-      { 
-        path: isAuthenticated ? "/test" : "", 
-        label: isAuthenticated ? "Тест" : "", 
-        icon: ClipboardList 
+      {
+        path: isAuthenticated ? "/" : "",
+        label: isAuthenticated ? "Главная" : "",
+        icon: Home
       },
-      { 
-        path: isAuthenticated ? "/results" : "", 
-        label: isAuthenticated ? "Результаты" : "", 
-        icon: BarChart2 
+      {
+        path: isAuthenticated ? "/test" : "",
+        label: isAuthenticated ? "Тест" : "",
+        icon: ClipboardList
+      },
+      {
+        path: isAuthenticated ? "/results" : "",
+        label: isAuthenticated ? "Результаты" : "",
+        icon: BarChart2
       }
     ] : []),
     {
@@ -34,9 +35,9 @@ const Navigation = () => {
       icon: isAuthenticated ? LogOut : User,
       onClick: isAuthenticated
         ? () => {
-            logout();
-            navigate("/login");
-          }
+          logout();
+          navigate("/login");
+        }
         : undefined,
     },
   ];
@@ -68,7 +69,7 @@ const Navigation = () => {
                     className={`${location.pathname === item.path
                       ? "border-primary text-primary"
                       : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                    } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                      } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
                   >
                     <Icon className="w-4 h-4 mr-2" />
                     {item.label}
@@ -100,7 +101,7 @@ const Navigation = () => {
                   className={`${location.pathname === item.path
                     ? "bg-primary bg-opacity-10 border-primary text-primary"
                     : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                  } block pl-3 pr-4 py-2 border-l-4 text-base font-medium w-full text-left`}
+                    } block pl-3 pr-4 py-2 border-l-4 text-base font-medium w-full text-left`}
                 >
                   <div className="flex items-center">
                     <Icon className="w-4 h-4 mr-2" />
@@ -114,7 +115,7 @@ const Navigation = () => {
                   className={`${location.pathname === item.path
                     ? "bg-primary bg-opacity-10 border-primary text-primary"
                     : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                  } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+                    } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
                 >
                   <div className="flex items-center">
                     <Icon className="w-4 h-4 mr-2" />
