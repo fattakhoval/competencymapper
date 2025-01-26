@@ -56,6 +56,7 @@ function calculateScore(answers) {
     return Math.round((score / maxScore) * 100);
 }
 
+
 const userRoutes = require('./routes/userRoutes')(db, jwt);
 app.use('/api/users', userRoutes);
 

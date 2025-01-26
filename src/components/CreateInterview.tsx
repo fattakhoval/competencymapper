@@ -1,134 +1,83 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import axios from "axios";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
 
 const CreateInterview = () => {
+  const [users, setUsers] = useState([]);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    candidate: "",
+    id_user: "",
     position: "",
-    date: null,
-    notes: "",
+    date: "",
+    notes: ""
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data } = await axios.get("http://localhost:5000/api/admin/users");
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/interviews", {
-        ...formData,
-        date: formData.date ? formData.date.toISOString() : null,
-      });
-      navigate("/interviews");
+      await axios.post("http://localhost:5000/api/admin", formData);
+      navigate("/admin");
     } catch (error) {
       console.error("Error creating interview:", error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">
-            Создать новое интервью
-          </h1>
+    <Card className="max-w-2xl mx-auto p-6 mt-8">
+      <h1 className="text-2xl font-bold mb-6">Создать интервью</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Select
+          onValueChange={(value) => setFormData({ ...formData, id_user: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Выберите кандидата" />
+          </SelectTrigger>
+          <SelectContent>
+            {users.map((user) => (
+              <SelectItem key={user.id} value={user.id.toString()}>
+                {user.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Имя кандидата
-              </label>
-              <Input
-                type="text"
-                name="candidate"
-                placeholder="Введите имя кандидата"
-                required
-                value={formData.candidate}
-                onChange={handleChange}
-              />
-            </div>
+        <Input
+          placeholder="Должность"
+          onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+        />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Должность
-              </label>
-              <Input
-                type="text"
-                name="position"
-                placeholder="Введите должность"
-                required
-                value={formData.position}
-                onChange={handleChange}
-              />
-            </div>
+        <Input
+          type="date" // Было datetime-local
+          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+        />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Дата интервью
-              </label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !formData.date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.date ? format(formData.date, "PPP") : "Выберите дату"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={formData.date}
-                    onSelect={(date) => setFormData({ ...formData, date })}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+        <Textarea
+          placeholder="Заметки"
+          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+        />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Заметки
-              </label>
-              <Textarea
-                name="notes"
-                placeholder="Добавьте заметки о кандидате"
-                className="h-32"
-                value={formData.notes}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="flex justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate("/interviews")}
-              >
-                Отмена
-              </Button>
-              <Button type="submit">Создать интервью</Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+        <Button type="submit" className="w-full">
+          Создать интервью
+        </Button>
+      </form>
+    </Card>
   );
 };
 

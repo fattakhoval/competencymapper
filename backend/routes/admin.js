@@ -13,7 +13,12 @@ module.exports = (db) => {
     router.get('/', async (req, res) => {
         console.log('Fetching interviews...');
         try {
-            const [interviews] = await db.query('SELECT * FROM Interviews');
+            const [interviews] = await db.query(`
+                SELECT i.*, u.name as user_name 
+                FROM Interviews i 
+                LEFT JOIN users u ON i.id_user = u.id
+            `);
+            console.log('Fetched interviews:', interviews); // Добавьте для отладки
             res.status(200).json(interviews);
         } catch (err) {
             console.error('Error fetching interviews:', err);
@@ -21,52 +26,32 @@ module.exports = (db) => {
         }
     });
     
+    router.get('/users', async (req, res) => {
+        try {
+            const [users] = await db.query('SELECT id, name FROM users');
+            res.status(200).json(users);
+        } catch (err) {
+            console.error('Error fetching users:', err);
+            res.status(500).json({ error: 'Failed to fetch users' });
+        }
+    });
     // Создание нового интервью
     router.post('/', async (req, res) => {
-        const { candidate, position, date, notes } = req.body;
-        console.log('Creating interview with data:', req.body);  // Логируем данные
-
-        // Преобразуем дату в нужный формат
-        const formattedDate = new Date(date).toISOString().slice(0, 19).replace('T', ' ');
-
+        const { id_user, position, date, notes } = req.body;
+        const formattedDate = new Date(date).toISOString().split('T')[0]; // Берем только дату
+    
         try {
             const [result] = await req.db.query(
-                'INSERT INTO Interviews (candidate, position, date, notes) VALUES (?, ?, ?, ?)',
-                [candidate, position, formattedDate, notes]  // Используем преобразованную дату
+                'INSERT INTO Interviews (id_user, position, date, notes) VALUES (?, ?, ?, ?)',
+                [id_user, position, formattedDate, notes]
             );
-            console.log('Interview created, ID:', result.insertId);
             res.status(201).json({ id: result.insertId, ...req.body });
         } catch (err) {
-            console.error('Error creating interview:', err);  // Логируем ошибку
+            console.error('Error creating interview:', err);
             res.status(500).json({ error: 'Failed to create interview' });
         }
     });
 
-
-    // Обновление статуса интервью
-    router.put('/:id', async (req, res) => {
-        const { id } = req.params;
-        const { status } = req.body;
-        try {
-            await req.db.query('UPDATE Interviews SET status = ? WHERE id = ?', [status, id]);
-            res.status(200).json({ message: 'Interview updated successfully' });
-        } catch (err) {
-            console.error('Error updating interview:', err);
-            res.status(500).json({ error: 'Failed to update interview' });
-        }
-    });
-
-    // Удаление интервью
-    router.delete('/:id', async (req, res) => {
-        const { id } = req.params;
-        try {
-            await req.db.query('DELETE FROM Interviews WHERE id = ?', [id]);
-            res.status(200).json({ message: 'Interview deleted successfully' });
-        } catch (err) {
-            console.error('Error deleting interview:', err);
-            res.status(500).json({ error: 'Failed to delete interview' });
-        }
-    });
 
     return router;
 };

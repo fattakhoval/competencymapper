@@ -30,11 +30,8 @@ const Login = () => {
       localStorage.setItem("userId", userId);
       localStorage.setItem("userRole", role);
 
-
-      // Аутентификация пользователя
-      login();
-      console.log("Role from server:", role);
-      console.log("Role in localStorage:", localStorage.getItem("userRole"));
+      // Аутентификация пользователя с передачей роли
+      login(role); // Передаем роль в метод login
 
       // Перенаправление в зависимости от роли
       if (role === "admin") {
@@ -47,6 +44,7 @@ const Login = () => {
       console.error("Ошибка входа в систему:", error);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
