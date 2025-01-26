@@ -8,7 +8,6 @@ import { Download, RefreshCw, MessageSquare } from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-
 const Results = () => {
   const [currentData, setCurrentData] = useState([]);
   const [progressData, setProgressData] = useState([]);
@@ -17,36 +16,44 @@ const Results = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/tests", {
+        const response = await axios.get("http://localhost:5000/api/results", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        const results = response.data;
 
-        const currentSkills = results.slice(0, 5).map(result => ({
-          skill: `Skills for ${new Date(result.completedAt).toLocaleDateString("en-US")}`,
-          score: result.score,
-        }));
-        setCurrentData(currentSkills);
+        const { currentResults } = response.data;
+        console.log("Current Results:", currentResults);
 
-        const months = [
-          "January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"
-        ];
-        const progress = months.map((month, index) => {
-          const resultForMonth = results.find(result => {
-            const resultMonth = new Date(result.completedAt).getMonth();
-            return resultMonth === index;
+        if (currentResults && currentResults.length > 0) {
+          const processedData = currentResults.map(result => {
+            const scoreData = result.score ? JSON.parse(typeof result.score === 'string' ? result.score : JSON.stringify(result.score)) : {};
+            return {
+              date: new Date(result.completedAt).toLocaleDateString(),
+              Leader: scoreData.Leader?.percentage || 0,
+              People: scoreData.People?.percentage || 0,
+              Technical: scoreData.Tectnick?.percentage || 0,
+            };
           });
-          return {
-            month: month,
-            score: resultForMonth ? resultForMonth.score : 0,
-          };
-        });
-        setProgressData(progress);
+          console.log("Processed Data:", processedData);
+          setCurrentData(processedData);
+
+          const avgProgress = currentResults.map(result => {
+            const scoreData = result.score ? JSON.parse(typeof result.score === 'string' ? result.score : JSON.stringify(result.score)) : {};
+            const scores = [
+              scoreData.Leader?.percentage || 0,
+              scoreData.People?.percentage || 0,
+              scoreData.Tectnick?.percentage || 0
+            ];
+            return {
+              date: new Date(result.completedAt).toLocaleDateString(),
+              average: scores.reduce((a, b) => a + b, 0) / scores.length
+            };
+          });
+          setProgressData(avgProgress);
+        }
       } catch (error) {
-        console.error("Ошибка при получении данных:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -55,82 +62,63 @@ const Results = () => {
 
   const downloadReport = () => {
     const doc = new jsPDF();
-  
-    // Заголовок отчёта
-    doc.setFontSize(16);
     doc.text("Evaluation Results", 10, 10);
-  
-    // Текущие показатели
-    doc.setFontSize(14);
-    doc.text("Current Competence Indicators", 10, 20);
-    const currentTable = currentData.map(data => [data.skill, data.score]);
+    
     doc.autoTable({
-      head: [["Skill", "Evaluation"]],
-      body: currentTable,
-      startY: 25,
+      head: [["Date", "Leader", "People", "Technical"]],
+      body: currentData.map(data => [
+        data.date,
+        `${data.Leader}%`,
+        `${data.People}%`,
+        `${data.Technical}%`
+      ]),
+      startY: 20,
     });
-  
-    // Прогресс
-    doc.text("All-Time Progress", 10, doc.previousAutoTable.finalY + 10);
-    const progressTable = progressData.map(data => [data.month, data.score]);
-    doc.autoTable({
-      head: [["Month", "Evaluation"]],
-      body: progressTable,
-      startY: doc.previousAutoTable.finalY + 15,
-    });
-  
-    // Сохранение PDF
-    doc.save("Report.pdf");
+
+    doc.save("competency-report.pdf");
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Результаты оценки
-          </h1>
-          <p className="text-xl text-gray-600">
-            Ознакомьтесь с результатами вашей деятельности
-          </p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Результаты оценки</h1>
         </div>
 
         <Card className="p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Текущие показатели компетентности
-          </h2>
+          <h2 className="text-2xl font-bold mb-6">Показатели компетентности</h2>
           <div className="h-96">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={currentData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <ResponsiveContainer>
+              <BarChart data={currentData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="skill" />
-                <YAxis />
+                <XAxis dataKey="date" />
+                <YAxis domain={[0, 100]} />
                 <Tooltip />
-                <Bar dataKey="score" fill="#1E40AF" />
+                <Bar dataKey="Leader" fill="#1E40AF" name="Лидерство" />
+                <Bar dataKey="People" fill="#3B82F6" name="Работа с людьми" />
+                <Bar dataKey="Technical" fill="#60A5FA" name="Технические навыки" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
         <Card className="p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Прогресс за всё время
-          </h2>
+          <h2 className="text-2xl font-bold mb-6">Средний прогресс</h2>
           <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={progressData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <ResponsiveContainer>
+              <LineChart data={progressData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis dataKey="date" />
+                <YAxis domain={[0, 100]} />
                 <Tooltip />
-                <Line type="monotone" dataKey="score" stroke="#1E40AF" />
+                <Line type="monotone" dataKey="average" stroke="#1E40AF" />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
         <div className="flex justify-center space-x-4">
-          <Button className="bg-primary hover:bg-primary-hover text-white" onClick={downloadReport}>
+          <Button onClick={downloadReport}>
             <Download className="mr-2 h-4 w-4" />
             Скачать отчёт
           </Button>

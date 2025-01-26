@@ -65,5 +65,14 @@ app.use('/api/interviews', interviewRoutes);
 const feedbackRoutes = require('./routes/feedbackRoutes')(db, authenticateToken);
 app.use('/api/feedback', feedbackRoutes);
 
+const results = require('./routes/results')(db, authenticateToken);
+app.use('/api/results', results);
+
+const processedResults = require('./routes/processedResults');
+app.use('/api/processedResults', processedResults(db, authenticateToken));
+
+const dashboardRoutes = require('./routes/dashboard')(db, authenticateToken);
+app.use('/api/dashboard', dashboardRoutes);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

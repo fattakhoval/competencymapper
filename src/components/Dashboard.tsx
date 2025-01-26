@@ -1,25 +1,51 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Award, Brain, Target, History, TrendingUp, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Dashboard = () => {
-  const stats = [
+  const [stats, setStats] = useState({
+    completedTests: 0,
+    averageScore: 0,
+    skillsToImprove: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/dashboard/stats", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setStats(response.data);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const statsData = [
     {
       title: "Завершенные тесты",
-      value: "12",
+      value: stats.completedTests,
       icon: Brain,
       color: "text-blue-600",
     },
     {
       title: "Средний балл",
-      value: "85%",
+      value: `${stats.averageScore}%`,
       icon: Award,
       color: "text-green-600",
     },
     {
       title: "Навыки, которые необходимо совершенствовать",
-      value: "3",
+      value: stats.skillsToImprove,
       icon: Target,
       color: "text-orange-600",
     },
@@ -59,7 +85,7 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
-          {stats.map((stat) => {
+          {statsData.map((stat) => {
             const Icon = stat.icon;
             return (
               <Card key={stat.title} className="p-6">
