@@ -14,25 +14,37 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
-    
     e.preventDefault();
     setError(null);
+
     try {
       const response = await axios.post("http://localhost:5000/api/users/login", {
         email,
         password,
       });
-      console.log('Response data:', response.data);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("userId", response.data.userId);
-      // Сохраняем токен и userId в localStorage
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("userId", response.data.userId);
+
+      const { token, userId, role } = response.data;
+
+      // Сохранение данных в localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("userRole", role);
+
+
+      // Аутентификация пользователя
       login();
-      navigate("/");
+      console.log("Role from server:", role);
+      console.log("Role in localStorage:", localStorage.getItem("userRole"));
+
+      // Перенаправление в зависимости от роли
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       setError("Неверные данные для входа");
-      console.error("Login error:", error);
+      console.error("Ошибка входа в систему:", error);
     }
   };
 

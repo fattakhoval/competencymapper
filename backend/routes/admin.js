@@ -4,7 +4,7 @@ const router = express.Router();
 // Экспорт маршрута с подключением базы данных
 module.exports = (db) => {
     router.use((req, res, next) => {
-        req.db = db;  
+        req.db = db;  // Подключаем пул соединений MySQL
         console.log('Database is set on the request'); // Логируем подключение к базе данных
         next();
     });
@@ -13,7 +13,7 @@ module.exports = (db) => {
     router.get('/', async (req, res) => {
         console.log('Fetching interviews...');
         try {
-            const [interviews] = await db.query('SELECT * FROM Interviews ');
+            const [interviews] = await db.query('SELECT * FROM Interviews');
             res.status(200).json(interviews);
         } catch (err) {
             console.error('Error fetching interviews:', err);

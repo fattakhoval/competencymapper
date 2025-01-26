@@ -14,34 +14,38 @@ import Progress from "./components/Progress";
 import Feedback from "./components/Feedback";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Admin from "./components/Admin";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { isAuthenticated } = useAuth(); // Проверяем авторизацию
+  const { isAuthenticated } = useAuth();
+  const userRole = localStorage.getItem('userRole');
 
   return (
     <div className="min-h-screen">
-      {/* Navigation отображается только для авторизованных пользователей */}
       {isAuthenticated && <Navigation />}
       <Routes>
-        {/* Маршруты, доступные всем */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Маршруты, доступные только авторизованным */}
         {isAuthenticated ? (
           <>
-            <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Dashboard />} />
             <Route path="/test" element={<TestInterface />} />
             <Route path="/results" element={<Results />} />
             <Route path="/interviews" element={<Interviews />} />
             <Route path="/create-interview" element={<CreateInterview />} />
             <Route path="/progress" element={<Progress />} />
-            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/feedback" element={ <Feedback />} />
+            <Route
+        path="/admin"
+        element={
+          isAuthenticated && userRole === "admin" ? <Admin /> : <Navigate to="/login" />
+        }
+      />
           </>
         ) : (
-          // Редирект всех остальных маршрутов для неавторизованных
           <Route path="*" element={<Navigate to="/register" />} />
         )}
       </Routes>
