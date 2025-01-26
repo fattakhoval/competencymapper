@@ -21,9 +21,10 @@ const TestInterface = () => {
       return acc;
     }, {} as Record<string, any[]>);
 
-    const selectedQuestions = Object.values(groupedQuestions).map(
-      questions => questions[Math.floor(Math.random() * questions.length)]
-    );
+    const selectedQuestions = Object.entries(groupedQuestions).flatMap(([category, questions]) => {
+      const shuffled = [...questions].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, 4);
+    });
 
     setRandomQuestions(selectedQuestions);
   }, []);

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Link } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { Download, RefreshCw, MessageSquare } from "lucide-react";
@@ -11,6 +12,60 @@ import "jspdf-autotable";
 const Results = () => {
   const [currentData, setCurrentData] = useState([]);
   const [progressData, setProgressData] = useState([]);
+  const [showRecommendations, setShowRecommendations] = useState(false);
+  const [recommendations, setRecommendations] = useState({ title: "", items: [] });
+
+  const getRecommendations = (scores) => {
+    const scoreData = typeof scores === 'string' ? JSON.parse(scores) : scores;
+    
+    // Приводим названия категорий к единому формату
+    const normalizedScores = {
+      Leader: scoreData.Leader?.percentage || 0,
+      People: scoreData.People?.percentage || 0,
+      Technical: scoreData.Tectnick?.percentage || 0
+    };
+    
+    const lowestScore = Object.entries(normalizedScores).reduce((lowest, [key, value]) => {
+      return value < lowest.score ? { area: key, score: value } : lowest;
+    }, { score: 100, area: 'Leader' });
+
+    const recommendationsByArea = {
+      People: {
+        title: "Рекомендации по развитию навыков работы с людьми",
+        items: [
+          "Улучшите навыки активного слушания",
+          "Изучите техники эффективной коммуникации",
+          "Развивайте эмоциональный интеллект",
+          "Практикуйте решение конфликтных ситуаций"
+        ]
+      },
+      Leader: {
+        title: "Рекомендации по развитию лидерских навыков",
+        items: [
+          "Пройдите курсы по управлению командой",
+          "Развивайте навыки делегирования",
+          "Практикуйте принятие стратегических решений",
+          "Изучите методы мотивации сотрудников"
+        ]
+      },
+     
+      Technical: {
+        title: "Рекомендации по развитию технических навыков",
+        items: [
+          "Изучите новые технологии в вашей области",
+          "Пройдите технические сертификации",
+          "Участвуйте в профессиональных сообществах",
+          "Практикуйте решение сложных технических задач"
+        ]
+      }
+    };
+
+    if (lowestScore.area && recommendationsByArea[lowestScore.area]) {
+      return recommendationsByArea[lowestScore.area];
+    }
+    
+    return null;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,7 +78,6 @@ const Results = () => {
         });
 
         const { currentResults } = response.data;
-        console.log("Current Results:", currentResults);
 
         if (currentResults && currentResults.length > 0) {
           const processedData = currentResults.map(result => {
@@ -35,8 +89,15 @@ const Results = () => {
               Technical: scoreData.Tectnick?.percentage || 0,
             };
           });
-          console.log("Processed Data:", processedData);
+          
           setCurrentData(processedData);
+
+          const latestScores = currentResults[0].score;
+          const recs = getRecommendations(latestScores);
+          if (recs) {
+            setRecommendations(recs);
+            setShowRecommendations(true);
+          }
 
           const avgProgress = currentResults.map(result => {
             const scoreData = result.score ? JSON.parse(typeof result.score === 'string' ? result.score : JSON.stringify(result.score)) : {};
@@ -135,6 +196,24 @@ const Results = () => {
             </Button>
           </Link>
         </div>
+
+        <AlertDialog open={showRecommendations} onOpenChange={setShowRecommendations}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{recommendations.title}</AlertDialogTitle>
+              <AlertDialogDescription>
+                <ul className="list-disc pl-6 space-y-2 mt-4">
+                  {recommendations.items.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction>Понятно</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
