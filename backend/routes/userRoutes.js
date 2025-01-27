@@ -55,7 +55,7 @@ module.exports = (db) => {
             const token = jwt.sign(
                 { id: user.id, role: user.role },
                 process.env.JWT_SECRET,
-                { expiresIn: '1h' }
+                { expiresIn: '3h' }
             );
     
             const redirectPath = user.role === 'admin' ? '/admin' : '/';
