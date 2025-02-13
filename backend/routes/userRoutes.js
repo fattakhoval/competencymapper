@@ -35,23 +35,17 @@ module.exports = (db) => {
             const { email, password } = req.body;
             const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
             
-            console.log("Query result:", rows); // Добавьте эту строку для проверки результата запроса
-            
             if (rows.length === 0) {
                 return res.status(401).json({ error: 'Invalid credentials' });
             }
             
             const user = rows[0];
-            console.log("User data:", user); // Проверьте, что поле role присутствует
-            
             const isPasswordValid = await bcrypt.compare(password, user.password);
             
             if (!isPasswordValid) {
                 return res.status(401).json({ error: 'Invalid credentials' });
             }
     
-            console.log("User role from database:", user.role); // Проверка наличия роли
-            
             const token = jwt.sign(
                 { id: user.id, role: user.role },
                 process.env.JWT_SECRET,
@@ -60,10 +54,12 @@ module.exports = (db) => {
     
             const redirectPath = user.role === 'admin' ? '/admin' : '/';
             
+            // Добавляем name в ответ сервера
             res.status(200).json({
                 token,
                 userId: user.id,
                 role: user.role,
+                name: user.name, // Добавляем имя пользователя
                 redirectTo: redirectPath
             });
         } catch (err) {

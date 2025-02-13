@@ -7,7 +7,9 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, userRole, logout } = useAuth();
+  // const { isAuthenticated, userRole, logout } = useAuth();
+const { isAuthenticated, userRole, userName, logout } = useAuth();
+
 
   // Определяем элементы навигации в зависимости от роли пользователя
   const navItems = [
@@ -71,10 +73,19 @@ const Navigation = () => {
     </div>
   </div>
 
-  {/* Блок с ником и кнопкой выхода */}
-  {isAuthenticated && (
+{/* Блок с ником и кнопкой выхода */}
+{isAuthenticated && (
     <div className="flex items-center space-x-4">
-      <span className="text-gray-700 font-medium">{userRole}</span>
+      <User className="w-4 h-4 text-gray-500" />
+      <div className="flex items-center">
+        {userRole === 'admin' ? (
+          <span className="px-2 py-1 text-sm font-medium text-white bg-primary rounded-full">
+            Админ
+          </span>
+        ) : (
+          <span className="text-gray-700 font-medium">{userName || 'Пользователь'}</span>
+        )}
+      </div>
       <button
         onClick={() => {
           logout();

@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
   userId: string | null;
-  userRole: string | null; // Добавьте роль пользователя
-  login: (role: string) => void; // Измените сигнатуру метода login
+  userRole: string | null;
+  userName: string | null;
+  login: (role: string, name: string) => void;
   logout: () => void;
 }
 
@@ -24,33 +25,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return localStorage.getItem("userRole");
   });
 
-  const login = (role: string) => {
+  const [userName, setUserName] = useState<string | null>(() => {
+    return localStorage.getItem("userName");
+  });
+
+  const login = (role: string, name: string) => {
     setIsAuthenticated(true);
     setUserRole(role);
+    setUserName(name);
     localStorage.setItem("isAuthenticated", "true");
     localStorage.setItem("userRole", role);
-    // Установите userId, полученный при логине
-    setUserId("userId"); // Замените на реальный userId
+    localStorage.setItem("userName", name);
+    setUserId("userId");
     localStorage.setItem("userId", "userId");
   };
-
 
   const logout = () => {
     setIsAuthenticated(false);
     setUserId(null);
     setUserRole(null);
+    setUserName(null);
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("userId");
     localStorage.removeItem("userRole");
+    localStorage.removeItem("userName");
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userId, userRole, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userId, userRole, userName, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// Экспортируем хук useAuth как именованный экспорт
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
