@@ -1,17 +1,54 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { UserPlus } from "lucide-react";
 import axios from "axios";
+
+// Floating Label Input Component
+const FloatingLabelInput = ({ 
+  id, 
+  type, 
+  value, 
+  onChange, 
+  label, 
+  required = false, 
+  minLength 
+}) => {
+  const [isFocused, setIsFocused] = useState(false);
+  
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={onChange}
+        required={required}
+        minLength={minLength}
+        className="block w-full px-4 py-2 text-gray-900 bg-white border rounded-md appearance-none focus:outline-none focus:ring-primary focus:border-primary peer"
+        placeholder=" "
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(value.length > 0)}
+      />
+      <label
+        htmlFor={id}
+        className={`absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1 ${
+          isFocused ? "text-primary" : "text-gray-500"
+        }`}
+      >
+        {label}
+      </label>
+    </div>
+  );
+};
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<string | null>(null); // Состояние для отображения сообщений
+  const [message, setMessage] = useState(null);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post("http://localhost:5000/api/users/register", {
@@ -22,14 +59,11 @@ const Register = () => {
       });
 
       console.log("Registered:", response.data);
-      setMessage("Регистрация прошла успешно!"); // Сообщение об успешной регистрации
+      setMessage("Регистрация прошла успешно!");
     } catch (error) {
       console.error("Registration error:", error);
-
-      // Обработка ошибки дублирования email
-      // Сообщение о дублировании
       if (error.response?.status === 400) {
-        setMessage("Пользователь с таким email уже существует."); // Ошибка с некорректными данными
+        setMessage("Пользователь с таким email уже существует.");
       } else {
         setMessage("Ошибка при регистрации. Попробуйте снова.");
       }
@@ -46,48 +80,33 @@ const Register = () => {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleRegister}>
           <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="name" className="sr-only">
-                Имя
-              </label>
-              <Input
-                id="name"
-                type="name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Имя"
-              />
-            </div>
+            <FloatingLabelInput
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              label="Имя"
+              required
+            />
 
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-              />
-            </div>
+            <FloatingLabelInput
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              label="Email"
+              required
+            />
 
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Пароль
-              </label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Пароль"
-                minLength={6}
-              />
-            </div>
+            <FloatingLabelInput
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              label="Пароль"
+              required
+              minLength={6}
+            />
           </div>
 
           <div>
@@ -98,9 +117,10 @@ const Register = () => {
           </div>
         </form>
 
-        {/* Добавим вывод сообщения */}
         {message && (
-          <div className="mt-4 text-center text-lg text-red-600">
+          <div className={`mt-4 text-center text-lg ${
+            message.includes("успешно") ? "text-green-600" : "text-red-600"
+          }`}>
             {message}
           </div>
         )}
