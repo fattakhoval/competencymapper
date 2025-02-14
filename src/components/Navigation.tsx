@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, BarChart2, ClipboardList, Home, User, LogOut } from "lucide-react";
+import { Menu, X, BarChart2, ClipboardList, Home, User, LogOut, Shield, Users, Settings } from "lucide-react";
 import { useAuth } from "./AuthContext";
 
 const Navigation = () => {
@@ -9,34 +9,47 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { isAuthenticated, userRole, userName, logout } = useAuth();
 
-  const navItems = [
-    ...(userRole !== 'admin' ? [
-      {
-        path: isAuthenticated ? "/" : "",
-        label: isAuthenticated ? "Главная" : "",
-        icon: Home
-      },
-      {
-        path: isAuthenticated ? "/test" : "",
-        label: isAuthenticated ? "Тест" : "",
-        icon: ClipboardList
-      },
-      {
-        path: isAuthenticated ? "/results" : "",
-        label: isAuthenticated ? "Результаты" : "",
-        icon: BarChart2
-      }
-    ] : []),
+  const adminNavItems = [
     {
-      path: isAuthenticated ? "#" : "/register",
-      label: isAuthenticated ? "Выйти" : "Регистрация",
-      icon: isAuthenticated ? LogOut : User,
-      onClick: isAuthenticated
-        ? () => {
-          logout();
-          navigate("/login");
-        }
-        : undefined,
+      path: "/admin",
+      label: "Главная",
+      icon: Home
+    },
+    {
+      path: "/admin/tests",
+      label: "Управление тестами",
+      icon: ClipboardList
+    },
+  ];
+
+  const userNavItems = [
+    {
+      path: "/",
+      label: "Главная",
+      icon: Home
+    },
+    {
+      path: "/test",
+      label: "Тест",
+      icon: ClipboardList
+    },
+    {
+      path: "/results",
+      label: "Результаты",
+      icon: BarChart2
+    }
+  ];
+
+  const navItems = [
+    ...(userRole === 'admin' ? adminNavItems : userNavItems),
+    {
+      path: "#",
+      label: "Выйти",
+      icon: LogOut,
+      onClick: () => {
+        logout();
+        navigate("/login");
+      },
     },
   ];
 
@@ -77,13 +90,18 @@ const Navigation = () => {
           {isAuthenticated && (
             <div className="hidden md:flex md:items-center md:space-x-4">
               <div className="flex items-center space-x-2">
-                <User className="w-4 h-4 text-gray-500" />
                 {userRole === 'admin' ? (
-                  <span className="px-2 py-1 text-sm font-medium text-white bg-primary rounded-full">
-                    Админ
-                  </span>
+                  <div className="flex items-center">
+                    <Shield className="w-4 h-4 text-primary mr-2" />
+                    <span className="px-2 py-1 text-sm font-medium text-white bg-primary rounded-full">
+                      Админ
+                    </span>
+                  </div>
                 ) : (
-                  <span className="text-gray-700 font-medium">{userName || 'Пользователь'}</span>
+                  <div className="flex items-center">
+                    <User className="w-4 h-4 text-gray-500 mr-2" />
+                    <span className="text-gray-700 font-medium">{userName || 'Пользователь'}</span>
+                  </div>
                 )}
               </div>
               <button
@@ -124,13 +142,18 @@ const Navigation = () => {
             {isAuthenticated && (
               <div className="px-4 py-3 border-b border-gray-200">
                 <div className="flex items-center space-x-3">
-                  <User className="w-5 h-5 text-gray-500" />
                   {userRole === 'admin' ? (
-                    <span className="px-2 py-1 text-sm font-medium text-white bg-primary rounded-full">
-                      Админ
-                    </span>
+                    <>
+                      <Shield className="w-5 h-5 text-primary" />
+                      <span className="px-2 py-1 text-sm font-medium text-white bg-primary rounded-full">
+                        Админ
+                      </span>
+                    </>
                   ) : (
-                    <span className="text-gray-700 font-medium">{userName || 'Пользователь'}</span>
+                    <>
+                      <User className="w-5 h-5 text-gray-500" />
+                      <span className="text-gray-700 font-medium">{userName || 'Пользователь'}</span>
+                    </>
                   )}
                 </div>
               </div>

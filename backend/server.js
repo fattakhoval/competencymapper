@@ -80,5 +80,8 @@ app.use('/api/dashboard', dashboardRoutes);
 const admin = require('./routes/admin')(db, authenticateToken);
 app.use('/api/admin', admin);
 
+const adminTestRoutes = require('./routes/adminTestRoutes');
+app.use('/api/admin', adminTestRoutes(db, authenticateToken));
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

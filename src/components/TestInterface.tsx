@@ -5,32 +5,37 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, CheckCircle } from "lucide-react";
-import questionsData from './questions.json';
 import axios from 'axios';
 
 const TestInterface = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [randomQuestions, setRandomQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const groupedQuestions = questionsData.questions.reduce((acc, question) => {
-      if (!acc[question.category]) acc[question.category] = [];
-      acc[question.category].push(question);
-      return acc;
-    }, {} as Record<string, any[]>);
+    const fetchQuestions = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/tests/questions", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setQuestions(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+        setLoading(false);
+      }
+    };
 
-    const selectedQuestions = Object.entries(groupedQuestions).flatMap(([category, questions]) => {
-      const shuffled = [...questions].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, 4);
-    });
-
-    setRandomQuestions(selectedQuestions);
+    fetchQuestions();
   }, []);
 
   const calculateCategoryScore = (category: string): number => {
-    const categoryQuestions = randomQuestions.filter(q => q.category === category);
+    const categoryQuestions = questions.filter(q => q.category === category);
     return categoryQuestions.reduce((score, question) => {
       const answer = answers[question.id];
       if (!answer) return score;
@@ -43,7 +48,7 @@ const TestInterface = () => {
   };
 
   const calculateCategoryPercentage = (category: string): number => {
-    const categoryQuestions = randomQuestions.filter(q => q.category === category);
+    const categoryQuestions = questions.filter(q => q.category === category);
     const maxPossibleScore = categoryQuestions.length * 4;
     const actualScore = calculateCategoryScore(category);
     return (actualScore / maxPossibleScore) * 100;
@@ -52,59 +57,89 @@ const TestInterface = () => {
   const saveResults = async () => {
     try {
       const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
-
-      if (!userId) {
-        console.error("User ID is missing.");
+      console.log("Token:", token); // Проверяем токен
+      
+      if (!token) {
+        console.error("No token found");
+        navigate("/login");
         return;
       }
-
-      const categories = [...new Set(randomQuestions.map(q => q.category))];
+  
+      // Получаем уникальные категории
+      const categories = [...new Set(questions.map(q => q.category))];
+      console.log("Categories:", categories); // Проверяем категории
+      
+      // Рассчитываем результаты по категориям
       const resultsByCategory = categories.reduce((acc, category) => {
+        const categoryQuestions = questions.filter(q => q.category === category);
+        const score = calculateCategoryScore(category);
+        const percentage = calculateCategoryPercentage(category);
+  
         acc[category] = {
-          score: calculateCategoryScore(category),
-          percentage: calculateCategoryPercentage(category)
+          score,
+          percentage: Math.round(percentage * 100) / 100
         };
         return acc;
       }, {} as Record<string, { score: number; percentage: number }>);
-
-      await axios.post("http://localhost:5000/api/tests", {
-        userId,
-        results: resultsByCategory
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+  
+      console.log("Results to send:", resultsByCategory); // Проверяем данные перед отправкой
+  
+      // Отправляем результаты
+      console.log("Sending request to:", "http://localhost:5000/api/tests");
+      const response = await axios.post(
+        "http://localhost:5000/api/tests",
+        { results: resultsByCategory },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
         }
-      });
-
-      navigate("/results");
+      );
+  
+      console.log("Server response:", response); // Проверяем ответ сервера
+  
+      if (response.status === 201) {
+        console.log("Results saved successfully");
+        navigate("/results");
+      } else {
+        console.warn("Unexpected response status:", response.status);
+      }
     } catch (error: any) {
       console.error("Error saving test results:", {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
+        headers: error.response?.headers
       });
     }
   };
 
   const handleAnswer = (value: string) => {
-    setAnswers({ ...answers, [randomQuestions[currentQuestion].id]: value });
+    setAnswers({ ...answers, [questions[currentQuestion].id]: value });
   };
 
   const handleNext = () => {
-    if (currentQuestion < randomQuestions.length - 1) {
+    if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       saveResults();
     }
   };
 
-  if (randomQuestions.length === 0) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen">
+      <div className="text-xl">Загрузка вопросов...</div>
+    </div>;
   }
 
-  const question = randomQuestions[currentQuestion];
+  if (questions.length === 0) {
+    return <div className="flex justify-center items-center min-h-screen">
+      <div className="text-xl">Нет доступных вопросов</div>
+    </div>;
+  }
+
+  const question = questions[currentQuestion];
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-12">
@@ -115,14 +150,14 @@ const TestInterface = () => {
               Оценка компетентности
             </h2>
             <span className="text-xs sm:text-sm text-gray-500">
-              Вопрос {currentQuestion + 1} из {randomQuestions.length}
+              Вопрос {currentQuestion + 1} из {questions.length}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="bg-primary rounded-full h-2 transition-all duration-300"
               style={{
-                width: `${((currentQuestion + 1) / randomQuestions.length) * 100}%`,
+                width: `${((currentQuestion + 1) / questions.length) * 100}%`,
               }}
             />
           </div>
@@ -163,7 +198,7 @@ const TestInterface = () => {
               disabled={!answers[question.id]}
               className="w-full sm:w-auto bg-primary hover:bg-primary-hover text-white text-sm sm:text-base py-2 px-4"
             >
-              {currentQuestion < randomQuestions.length - 1 ? (
+              {currentQuestion < questions.length - 1 ? (
                 <>
                   Следующий вопрос
                   <ChevronRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />

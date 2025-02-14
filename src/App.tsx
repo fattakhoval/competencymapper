@@ -15,8 +15,20 @@ import Feedback from "./components/Feedback";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Admin from "./components/Admin";
+import AdminTestPanel from "./components/AdminTestPanel";
 
 const queryClient = new QueryClient();
+
+const ProtectedAdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuth();
+  const userRole = localStorage.getItem('userRole');
+
+  if (!isAuthenticated || userRole !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
@@ -31,19 +43,31 @@ const AppContent = () => {
 
         {isAuthenticated ? (
           <>
-              <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/test" element={<TestInterface />} />
             <Route path="/results" element={<Results />} />
             <Route path="/interviews" element={<Interviews />} />
             <Route path="/create-interview" element={<CreateInterview />} />
             <Route path="/progress" element={<Progress />} />
-            <Route path="/feedback" element={ <Feedback />} />
+            <Route path="/feedback" element={<Feedback />} />
+            
+            {/* Административные маршруты */}
             <Route
-        path="/admin"
-        element={
-          isAuthenticated && userRole === "admin" ? <Admin /> : <Navigate to="/login" />
-        }
-      />
+              path="/admin"
+              element={
+                <ProtectedAdminRoute>
+                  <Admin />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/tests"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminTestPanel />
+                </ProtectedAdminRoute>
+              }
+            />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/register" />} />
