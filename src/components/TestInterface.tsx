@@ -107,14 +107,14 @@ const TestInterface = () => {
   const question = randomQuestions[currentQuestion];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-12">
+      <div className="max-w-3xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="mb-4 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-0">
               Оценка компетентности
             </h2>
-            <span className="text-sm text-gray-500">
+            <span className="text-xs sm:text-sm text-gray-500">
               Вопрос {currentQuestion + 1} из {randomQuestions.length}
             </span>
           </div>
@@ -128,45 +128,45 @@ const TestInterface = () => {
           </div>
         </div>
 
-        <Card className="p-6">
-          <h3 className="text-xl font-medium text-gray-900 mb-6">
+        <Card className="p-3 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-4 sm:mb-6">
             {question.question}
           </h3>
 
           <RadioGroup
             onValueChange={handleAnswer}
             value={answers[question.id] || ""}
-            className="space-y-4"
+            className="space-y-3 sm:space-y-4"
           >
             {question.options.map((option: string, index: number) => (
               <div
                 key={index}
-                className="flex items-center space-x-2 border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+                className="flex items-center space-x-2 border rounded-lg p-3 sm:p-4 hover:bg-gray-50 cursor-pointer"
               >
                 <RadioGroupItem value={option} id={`option-${index}`} />
                 <Label
                   htmlFor={`option-${index}`}
-                  className="flex-grow cursor-pointer"
+                  className="flex-grow cursor-pointer text-sm sm:text-base"
                 >
                   {option}
                 </Label>
                 {answers[question.id] === option && (
-                  <CheckCircle className="h-5 w-5 text-primary" />
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 )}
               </div>
             ))}
           </RadioGroup>
 
-          <div className="mt-8 flex justify-end">
+          <div className="mt-6 sm:mt-8">
             <Button
               onClick={handleNext}
               disabled={!answers[question.id]}
-              className="bg-primary hover:bg-primary-hover text-white"
+              className="w-full sm:w-auto bg-primary hover:bg-primary-hover text-white text-sm sm:text-base py-2 px-4"
             >
               {currentQuestion < randomQuestions.length - 1 ? (
                 <>
                   Следующий вопрос
-                  <ChevronRight className="ml-2 h-4 w-4" />
+                  <ChevronRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                 </>
               ) : (
                 "Посмотреть результаты"

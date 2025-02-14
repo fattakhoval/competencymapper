@@ -139,78 +139,163 @@ const Results = () => {
     doc.save("competency-report.pdf");
   };
 
+  // Кастомный тултип для мобильных устройств
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 shadow-lg rounded-lg border border-gray-200">
+          <p className="text-sm font-medium">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name}: {entry.value}%
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-12">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Результаты оценки</h1>
+        <div className="text-center mb-6 sm:mb-12">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-4">Результаты оценки</h1>
         </div>
 
-        <Card className="p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-6">Показатели компетентности</h2>
-          <div className="h-96">
+        {/* График компетентности */}
+        <Card className="p-4 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Показатели компетентности</h2>
+          <div className="h-64 sm:h-96">
             <ResponsiveContainer>
-              <BarChart data={currentData}>
+              <BarChart 
+                data={currentData}
+                margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-                <Bar dataKey="Leader" fill="#1E40AF" name="Лидерство" />
-                <Bar dataKey="People" fill="#3B82F6" name="Работа с людьми" />
-                <Bar dataKey="Technical" fill="#60A5FA" name="Технические навыки" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis 
+                  domain={[0, 100]}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar 
+                  dataKey="Leader" 
+                  fill="#1E40AF" 
+                  name="Лидерство"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar 
+                  dataKey="People" 
+                  fill="#3B82F6" 
+                  name="Работа с людьми"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar 
+                  dataKey="Technical" 
+                  fill="#60A5FA" 
+                  name="Технические навыки"
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        <Card className="p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-6">Средний прогресс</h2>
-          <div className="h-72">
+        {/* График прогресса */}
+        <Card className="p-4 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Средний прогресс</h2>
+          <div className="h-48 sm:h-72">
             <ResponsiveContainer>
-              <LineChart data={progressData}>
+              <LineChart 
+                data={progressData}
+                margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-                <Line type="monotone" dataKey="average" stroke="#1E40AF" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis 
+                  domain={[0, 100]}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="average" 
+                  stroke="#1E40AF"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        <div className="flex justify-center space-x-4">
-          <Button onClick={downloadReport}>
-            <Download className="mr-2 h-4 w-4" />
-            Скачать отчёт
+        {/* Кнопки действий */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 px-4 sm:px-6 mt-6 sm:mt-8 max-w-3xl mx-auto">
+          <Button 
+            onClick={downloadReport}
+            className="w-full h-12 sm:h-14 flex items-center justify-center text-sm sm:text-base font-medium transition-all duration-200 hover:scale-105"
+            variant="default"
+          >
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
+              <Download className="h-5 w-5 sm:h-4 sm:w-4 mb-1 sm:mb-0" />
+              <span>Скачать отчёт</span>
+            </div>
           </Button>
-          <Link to="/test">
-            <Button variant="outline">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Пройти ещё раз
+          
+          <Link to="/test" className="w-full">
+            <Button 
+              variant="outline"
+              className="w-full h-12 sm:h-14 flex items-center justify-center text-sm sm:text-base font-medium border-2 transition-all duration-200 hover:scale-105 hover:bg-gray-50"
+            >
+              <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
+                <RefreshCw className="h-5 w-5 sm:h-4 sm:w-4 mb-1 sm:mb-0" />
+                <span>Пройти ещё раз</span>
+              </div>
             </Button>
           </Link>
-          <Link to="/feedback">
-            <Button variant="outline">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Обратная связь
+          
+          <Link to="/feedback" className="w-full">
+            <Button 
+              variant="outline"
+              className="w-full h-12 sm:h-14 flex items-center justify-center text-sm sm:text-base font-medium border-2 transition-all duration-200 hover:scale-105 hover:bg-gray-50"
+            >
+              <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
+                <MessageSquare className="h-5 w-5 sm:h-4 sm:w-4 mb-1 sm:mb-0" />
+                <span>Обратная связь</span>
+              </div>
             </Button>
           </Link>
         </div>
 
+        {/* Диалог с рекомендациями */}
         <AlertDialog open={showRecommendations} onOpenChange={setShowRecommendations}>
-          <AlertDialogContent>
+          <AlertDialogContent className="sm:max-w-md">
             <AlertDialogHeader>
-              <AlertDialogTitle>{recommendations.title}</AlertDialogTitle>
+              <AlertDialogTitle className="text-lg sm:text-xl">
+                {recommendations.title}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                <ul className="list-disc pl-6 space-y-2 mt-4">
+                <ul className="list-disc pl-4 sm:pl-6 space-y-2 mt-4">
                   {recommendations.items.map((item, index) => (
-                    <li key={index}>{item}</li>
+                    <li key={index} className="text-sm sm:text-base">{item}</li>
                   ))}
                 </ul>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogAction>Понятно</AlertDialogAction>
+              <AlertDialogAction className="w-full sm:w-auto">
+                Понятно
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
