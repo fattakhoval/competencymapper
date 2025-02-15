@@ -73,141 +73,36 @@ const AdminTestPanel = () => {
     }
   };
 
-  const handleAddTest = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        "http://localhost:5000/api/admin/tests",
-        {
-          ...newTest,
-          options: newTest.options.filter((opt) => opt.trim() !== ""),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      fetchTests();
-      setNewTest({
-        category: "",
-        question: "",
-        options: ["", "", "", ""],
-      });
-    } catch (error) {
-      console.error("Error adding test:", error);
-    }
-  };
-
-  const handleUpdateTest = async (id: number) => {
-    if (!editingTest) return;
-    try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `http://localhost:5000/api/admin/tests/${id}`,
-        {
-          ...editingTest,
-          options: editingTest.options.filter((opt) => opt.trim() !== ""),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      fetchTests();
-      setEditingTest(null);
-    } catch (error) {
-      console.error("Error updating test:", error);
-    }
-  };
-
-  const handleDeleteTest = async (id: number) => {
-    if (!confirm("Вы уверены, что хотите удалить этот вопрос?")) return;
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/admin/tests/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      fetchTests();
-    } catch (error) {
-      console.error("Error deleting test:", error);
-    }
-  };
-
-  if (error) {
-    return (
-      <div className="container mx-auto py-6">
-        <Card className="bg-red-50">
-          <CardHeader>
-            <CardTitle className="text-red-600">Ошибка</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-red-600">{error}</p>
-            <Button 
-              onClick={fetchTests}
-              className="mt-4"
-              variant="outline"
-            >
-              Попробовать снова
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="container mx-auto py-6">
-        <Card>
-          <CardContent className="flex justify-center items-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 px-4">
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Управление тестами</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Select
-                  value={newTest.category}
-                  onValueChange={(value) =>
-                    setNewTest({ ...newTest, category: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите категорию" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Tectnick">Технические навыки</SelectItem>
-                    <SelectItem value="People">Работа с людьми</SelectItem>
-                    <SelectItem value="Leader">Лидерские качества</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Textarea
-                  placeholder="Введите вопрос"
-                  value={newTest.question}
-                  onChange={(e) =>
-                    setNewTest({ ...newTest, question: e.target.value })
-                  }
-                />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Select
+                value={newTest.category}
+                onValueChange={(value) => setNewTest({ ...newTest, category: value })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Выберите категорию" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Tectnick">Технические навыки</SelectItem>
+                  <SelectItem value="People">Работа с людьми</SelectItem>
+                  <SelectItem value="Leader">Лидерские качества</SelectItem>
+                </SelectContent>
+              </Select>
+              <Textarea
+                placeholder="Введите вопрос"
+                value={newTest.question}
+                onChange={(e) => setNewTest({ ...newTest, question: e.target.value })}
+                className="w-full"
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {newTest.options.map((option, index) => (
                 <Input
                   key={index}
@@ -221,7 +116,7 @@ const AdminTestPanel = () => {
                 />
               ))}
             </div>
-            <Button onClick={handleAddTest} className="w-full">
+            <Button onClick={() => {}} className="w-full md:w-auto">
               <PlusCircle className="mr-2 h-4 w-4" />
               Добавить вопрос
             </Button>
@@ -233,118 +128,36 @@ const AdminTestPanel = () => {
         <CardHeader>
           <CardTitle>Список вопросов</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
+        <CardContent className="overflow-x-auto">
+          <Table className="min-w-full">
             <TableHeader>
               <TableRow>
-                <TableHead>Категория</TableHead>
-                <TableHead>Вопрос</TableHead>
-                <TableHead>Варианты ответов</TableHead>
-                <TableHead className="w-[100px]">Действия</TableHead>
+                <TableHead className="whitespace-nowrap">Категория</TableHead>
+                <TableHead className="whitespace-nowrap">Вопрос</TableHead>
+                <TableHead className="whitespace-nowrap">Варианты ответов</TableHead>
+                <TableHead className="w-[100px] whitespace-nowrap">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {tests.map((test) => (
                 <TableRow key={test.id}>
+                  <TableCell className="whitespace-nowrap">{test.category}</TableCell>
+                  <TableCell>{test.question}</TableCell>
                   <TableCell>
-                    {editingTest?.id === test.id ? (
-                      <Select
-                        value={editingTest.category}
-                        onValueChange={(value) =>
-                          setEditingTest({ ...editingTest, category: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Tectnick">Технические навыки</SelectItem>
-                          <SelectItem value="People">Работа с людьми</SelectItem>
-                          <SelectItem value="Leader">Лидерские качества</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      test.category
-                    )}
+                    <ul className="list-disc list-inside">
+                      {test.options.map((option, index) => (
+                        <li key={index}>{option}</li>
+                      ))}
+                    </ul>
                   </TableCell>
                   <TableCell>
-                    {editingTest?.id === test.id ? (
-                      <Textarea
-                        value={editingTest.question}
-                        onChange={(e) =>
-                          setEditingTest({
-                            ...editingTest,
-                            question: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      test.question
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {editingTest?.id === test.id ? (
-                      <div className="space-y-2">
-                        {editingTest.options.map((option, index) => (
-                          <Input
-                            key={index}
-                            value={option}
-                            onChange={(e) => {
-                              const newOptions = [...editingTest.options];
-                              newOptions[index] = e.target.value;
-                              setEditingTest({
-                                ...editingTest,
-                                options: newOptions,
-                              });
-                            }}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <ul className="list-disc list-inside">
-                        {test.options.map((option, index) => (
-                          <li key={index}>{option}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      {editingTest?.id === test.id ? (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleUpdateTest(test.id)}
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setEditingTest(null)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setEditingTest(test)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => handleDeleteTest(test.id)}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" size="icon">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="destructive" size="icon">
+                        <Trash className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
