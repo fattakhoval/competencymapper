@@ -68,7 +68,7 @@ const TestInterface = () => {
         return acc;
       }, {} as Record<string, { score: number; percentage: number }>);
 
-      await axios.post("http://localhost:5000/api/tests", {
+      await axios.post("https://girl-backend.onrender.com/api/tests", {
         userId,
         results: resultsByCategory
       }, {

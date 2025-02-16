@@ -20,7 +20,7 @@ const CreateInterview = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/admin/users");
+        const { data } = await axios.get("https://girl-backend.onrender.com/api/admin/users");
         setUsers(data);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -32,7 +32,7 @@ const CreateInterview = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/admin", formData);
+      await axios.post("https://girl-backend.onrender.com/api/admin", formData);
       navigate("/admin");
     } catch (error) {
       console.error("Error creating interview:", error);

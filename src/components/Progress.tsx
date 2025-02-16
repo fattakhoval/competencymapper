@@ -23,7 +23,7 @@ const Progress = () => {
         const token = localStorage.getItem('token');
         console.log('Token:', token); // Отладка токена
 
-        const response = await axios.get("http://localhost:5000/api/processedResults", {
+        const response = await axios.get("https://girl-backend.onrender.com/api/processedResults", {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

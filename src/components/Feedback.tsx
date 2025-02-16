@@ -16,7 +16,7 @@ const Feedback = () => {
     // Получение последних отзывов
     const fetchFeedback = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/feedback", {
+        const response = await fetch("https://girl-backend.onrender.com/api/feedback", {
           method: 'GET',
           headers: {
             "Content-Type": "application/json",
@@ -49,7 +49,7 @@ const Feedback = () => {
     const newFeedback = { text: feedback, rating: satisfaction, userId };
 
     try {
-      const response = await fetch("http://localhost:5000/api/feedback", {
+      const response = await fetch("https://girl-backend.onrender.com/api/feedback", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

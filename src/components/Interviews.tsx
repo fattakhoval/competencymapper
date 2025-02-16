@@ -23,7 +23,7 @@ const Interviews = () => {
     const fetchInterviews = async () => {
       try {
         const token = localStorage.getItem('token'); // Получаем токен
-        const { data } = await axios.get("http://localhost:5000/api/interviews", {
+        const { data } = await axios.get("https://girl-backend.onrender.com/api/interviews", {
           headers: {
             'Authorization': `Bearer ${token}`
           }

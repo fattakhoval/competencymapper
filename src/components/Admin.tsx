@@ -35,9 +35,9 @@ const Interviews = () => {
     const fetchInterviews = async (page) => {
         setIsLoading(true);
         try {
-            const { data } = await axios.get(`http://localhost:5000/api/admin?page=${page}&limit=5`);
+            const { data } = await axios.get(`https://girl-backend.onrender.com/api/admin?page=${page}&limit=5`);
             setInterviews(data.interviews);
-            setTotalPages(data.totalPages);
+            setTotalPages(data.totalPages); 
             setCurrentPage(data.currentPage);
             setTotalInterviews(data.totalInterviews);
         } catch (error) {
@@ -55,7 +55,7 @@ const Interviews = () => {
     const handleStatusChange = async (interviewId, newStatus) => {
         try {
             const { data } = await axios.patch(
-                `http://localhost:5000/api/admin/${interviewId}/status`,
+                `https://girl-backend.onrender.com/api/admin/${interviewId}/status`,
                 { status: newStatus }
             );
             
@@ -75,6 +75,7 @@ const Interviews = () => {
             setCurrentPage(newPage);
         }
     };
+    console.log(interviews);
 
     // Обновленная логика фильтрации
     const filteredInterviews = interviews.filter((interview) => {
