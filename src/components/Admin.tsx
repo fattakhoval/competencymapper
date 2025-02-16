@@ -58,11 +58,11 @@ const Interviews = () => {
                 `https://girl-backend.onrender.com/api/admin/${interviewId}/status`,
                 { status: newStatus }
             );
-            
-            setInterviews(interviews.map(interview => 
+
+            setInterviews(interviews.map(interview =>
                 interview.id === interviewId ? data : interview
             ));
-            
+
             toast.success("Статус успешно обновлен");
         } catch (error) {
             console.error("Error updating status:", error);
@@ -77,29 +77,27 @@ const Interviews = () => {
     };
     console.log(interviews);
 
-    // Обновленная логика фильтрации
     const filteredInterviews = interviews.filter((interview) => {
-        const matchesSearch = 
+        const matchesSearch =
             (interview.user_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
             interview.position.toLowerCase().includes(searchQuery.toLowerCase());
-        
-        const matchesStatus = 
-            statusFilter === "all" || 
+
+        const matchesStatus =
+            statusFilter === "all" ||
             interview.status === statusFilter;
 
         return matchesSearch && matchesStatus;
     });
 
-    // Получаем статистику по статусам
     const completedCount = interviews.filter(i => i.status === "Completed").length;
     const scheduledCount = interviews.filter(i => i.status === "Scheduled").length;
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12">
+        <div className="min-h-screen bg-gray-50 py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">История интервью</h1>
-                    <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">История интервью</h1>
+                    <div className="flex gap-4 flex-wrap justify-center sm:justify-start">
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button variant="outline">
@@ -118,17 +116,14 @@ const Interviews = () => {
                                 </div>
                             </DialogContent>
                         </Dialog>
-                        <Button
-                            className="bg-primary"
-                            onClick={() => navigate("/create-interview")}
-                        >
+                        <Button className="bg-primary" onClick={() => navigate("/create-interview")}>
                             <Plus className="w-4 h-4 mr-2" />
                             Новое интервью
                         </Button>
                     </div>
                 </div>
 
-                <div className="flex gap-4 mb-6">
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
                     <div className="relative flex-1">
                         <Input
                             type="text"
@@ -139,8 +134,8 @@ const Interviews = () => {
                         />
                         <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     </div>
-                    
-                    <div className="w-[200px]">
+
+                    <div className="w-full md:w-[200px]">
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
                             <SelectTrigger>
                                 <Filter className="w-4 h-4 mr-2" />
@@ -162,8 +157,8 @@ const Interviews = () => {
                         <div className="space-y-4">
                             {filteredInterviews.map((interview) => (
                                 <Card key={interview.id} className="p-6">
-                                    <div className="flex justify-between items-start">
-                                        <div>
+                                    <div className="flex flex-col sm:flex-row justify-between items-start">
+                                        <div className="w-full sm:w-1/2">
                                             <h3 className="text-xl font-semibold text-gray-900">
                                                 {interview.user_name}
                                             </h3>
@@ -176,11 +171,10 @@ const Interviews = () => {
                                                     value={interview.status}
                                                     onValueChange={(value) => handleStatusChange(interview.id, value)}
                                                 >
-                                                    <SelectTrigger className={`w-[200px] ${
-                                                        interview.status === "Completed" 
-                                                            ? "bg-green-100 text-green-800" 
+                                                    <SelectTrigger className={`w-full sm:w-[200px] ${interview.status === "Completed"
+                                                            ? "bg-green-100 text-green-800"
                                                             : "bg-blue-100 text-blue-800"
-                                                    }`}>
+                                                        }`}>
                                                         <SelectValue placeholder="Выберите статус" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -191,7 +185,7 @@ const Interviews = () => {
                                             </div>
                                         </div>
                                         <Textarea
-                                            className="mt-2 w-1/2"
+                                            className="mt-4 sm:mt-0 w-full sm:w-1/2"
                                             placeholder="Добавить заметки..."
                                             defaultValue={interview.notes}
                                         />
@@ -209,7 +203,7 @@ const Interviews = () => {
                             >
                                 <ChevronLeft className="w-4 h-4" />
                             </Button>
-                            
+
                             <span className="text-sm text-gray-600">
                                 Страница {currentPage} из {totalPages}
                             </span>

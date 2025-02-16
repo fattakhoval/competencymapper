@@ -5,32 +5,37 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, CheckCircle } from "lucide-react";
-import questionsData from './questions.json';
 import axios from 'axios';
 
 const TestInterface = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [randomQuestions, setRandomQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const groupedQuestions = questionsData.questions.reduce((acc, question) => {
-      if (!acc[question.category]) acc[question.category] = [];
-      acc[question.category].push(question);
-      return acc;
-    }, {} as Record<string, any[]>);
+    const fetchQuestions = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/tests/questions", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setQuestions(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+        setLoading(false);
+      }
+    };
 
-    const selectedQuestions = Object.entries(groupedQuestions).flatMap(([category, questions]) => {
-      const shuffled = [...questions].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, 4);
-    });
-
-    setRandomQuestions(selectedQuestions);
+    fetchQuestions();
   }, []);
 
   const calculateCategoryScore = (category: string): number => {
-    const categoryQuestions = randomQuestions.filter(q => q.category === category);
+    const categoryQuestions = questions.filter(q => q.category === category);
     return categoryQuestions.reduce((score, question) => {
       const answer = answers[question.id];
       if (!answer) return score;
@@ -43,7 +48,7 @@ const TestInterface = () => {
   };
 
   const calculateCategoryPercentage = (category: string): number => {
-    const categoryQuestions = randomQuestions.filter(q => q.category === category);
+    const categoryQuestions = questions.filter(q => q.category === category);
     const maxPossibleScore = categoryQuestions.length * 4;
     const actualScore = calculateCategoryScore(category);
     return (actualScore / maxPossibleScore) * 100;
@@ -52,121 +57,151 @@ const TestInterface = () => {
   const saveResults = async () => {
     try {
       const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
-
-      if (!userId) {
-        console.error("User ID is missing.");
+      console.log("Token:", token); // Проверяем токен
+      
+      if (!token) {
+        console.error("No token found");
+        navigate("/login");
         return;
       }
-
-      const categories = [...new Set(randomQuestions.map(q => q.category))];
+  
+      // Получаем уникальные категории
+      const categories = [...new Set(questions.map(q => q.category))];
+      console.log("Categories:", categories); // Проверяем категории
+      
+      // Рассчитываем результаты по категориям
       const resultsByCategory = categories.reduce((acc, category) => {
+        const categoryQuestions = questions.filter(q => q.category === category);
+        const score = calculateCategoryScore(category);
+        const percentage = calculateCategoryPercentage(category);
+  
         acc[category] = {
-          score: calculateCategoryScore(category),
-          percentage: calculateCategoryPercentage(category)
+          score,
+          percentage: Math.round(percentage * 100) / 100
         };
         return acc;
       }, {} as Record<string, { score: number; percentage: number }>);
-
-      await axios.post("https://girl-backend.onrender.com/api/tests", {
-        userId,
-        results: resultsByCategory
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+  
+      console.log("Results to send:", resultsByCategory); // Проверяем данные перед отправкой
+  
+      // Отправляем результаты
+      console.log("Sending request to:", "https://girl-backend.onrender.com/api/tests");
+      const response = await axios.post(
+        "https://girl-backend.onrender.com/api/tests",
+        { results: resultsByCategory },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
         }
-      });
-
-      navigate("/results");
+      );
+  
+      console.log("Server response:", response); // Проверяем ответ сервера
+  
+      if (response.status === 201) {
+        console.log("Results saved successfully");
+        navigate("/results");
+      } else {
+        console.warn("Unexpected response status:", response.status);
+      }
     } catch (error: any) {
       console.error("Error saving test results:", {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
+        headers: error.response?.headers
       });
     }
   };
 
   const handleAnswer = (value: string) => {
-    setAnswers({ ...answers, [randomQuestions[currentQuestion].id]: value });
+    setAnswers({ ...answers, [questions[currentQuestion].id]: value });
   };
 
   const handleNext = () => {
-    if (currentQuestion < randomQuestions.length - 1) {
+    if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       saveResults();
     }
   };
 
-  if (randomQuestions.length === 0) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen">
+      <div className="text-xl">Загрузка вопросов...</div>
+    </div>;
   }
 
-  const question = randomQuestions[currentQuestion];
+  if (questions.length === 0) {
+    return <div className="flex justify-center items-center min-h-screen">
+      <div className="text-xl">Нет доступных вопросов</div>
+    </div>;
+  }
+
+  const question = questions[currentQuestion];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-12">
+      <div className="max-w-3xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="mb-4 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-0">
               Оценка компетентности
             </h2>
-            <span className="text-sm text-gray-500">
-              Вопрос {currentQuestion + 1} из {randomQuestions.length}
+            <span className="text-xs sm:text-sm text-gray-500">
+              Вопрос {currentQuestion + 1} из {questions.length}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="bg-primary rounded-full h-2 transition-all duration-300"
               style={{
-                width: `${((currentQuestion + 1) / randomQuestions.length) * 100}%`,
+                width: `${((currentQuestion + 1) / questions.length) * 100}%`,
               }}
             />
           </div>
         </div>
 
-        <Card className="p-6">
-          <h3 className="text-xl font-medium text-gray-900 mb-6">
+        <Card className="p-3 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-4 sm:mb-6">
             {question.question}
           </h3>
 
           <RadioGroup
             onValueChange={handleAnswer}
             value={answers[question.id] || ""}
-            className="space-y-4"
+            className="space-y-3 sm:space-y-4"
           >
             {question.options.map((option: string, index: number) => (
               <div
                 key={index}
-                className="flex items-center space-x-2 border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+                className="flex items-center space-x-2 border rounded-lg p-3 sm:p-4 hover:bg-gray-50 cursor-pointer"
               >
                 <RadioGroupItem value={option} id={`option-${index}`} />
                 <Label
                   htmlFor={`option-${index}`}
-                  className="flex-grow cursor-pointer"
+                  className="flex-grow cursor-pointer text-sm sm:text-base"
                 >
                   {option}
                 </Label>
                 {answers[question.id] === option && (
-                  <CheckCircle className="h-5 w-5 text-primary" />
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 )}
               </div>
             ))}
           </RadioGroup>
 
-          <div className="mt-8 flex justify-end">
+          <div className="mt-6 sm:mt-8">
             <Button
               onClick={handleNext}
               disabled={!answers[question.id]}
-              className="bg-primary hover:bg-primary-hover text-white"
+              className="w-full sm:w-auto bg-primary hover:bg-primary-hover text-white text-sm sm:text-base py-2 px-4"
             >
-              {currentQuestion < randomQuestions.length - 1 ? (
+              {currentQuestion < questions.length - 1 ? (
                 <>
                   Следующий вопрос
-                  <ChevronRight className="ml-2 h-4 w-4" />
+                  <ChevronRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                 </>
               ) : (
                 "Посмотреть результаты"
