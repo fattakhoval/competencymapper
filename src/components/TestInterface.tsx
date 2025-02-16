@@ -18,7 +18,7 @@ const TestInterface = () => {
     const fetchQuestions = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/tests/questions", {
+        const response = await axios.get("http://girl-backend.onrender.com/api/tests/questions", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

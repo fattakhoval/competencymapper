@@ -58,7 +58,7 @@ const AdminTestPanel = () => {
         throw new Error("No token found");
       }
 
-      const response = await axios.get("http://localhost:5000/api/admin/tests", {
+      const response = await axios.get("http://girl-backend.onrender.com/api/admin/tests", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
